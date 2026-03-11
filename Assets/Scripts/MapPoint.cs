@@ -1,77 +1,85 @@
 using UnityEngine;
-using System.Collections.Generic;
+using System.Collections.Generic; // Нужно для списков
 
 public enum PointType
 {
-    Road,       // Обычная дорога (-1 топлива)
-    BadRoad,    // Плохая дорога (от -1 до -3)
-    GasStation, // Заправка (+топливо)
-    Warehouse,  // Склад (взять груз)
-    Shop        // Магазин (сдать груз)
+    Road,
+    BadRoad,
+    GasStation,
+    Warehouse,
+    Shop
 }
 
 public class MapPoint : MonoBehaviour
 {
     [Header("Настройки точки")]
     public PointType type = PointType.Road;
-    public List<MapPoint> neighbors; // Соседние точки, куда можно поехать отсюда
+    public List<MapPoint> neighbors;
 
-    [Header("Параметры топлива")]
-    public int fuelRefillAmount = 5; // Сколько дает заправка
+    [Header("Список Грузов")]
+    // Для Склада: список того, что здесь лежит и можно забрать.
+    // Для Магазина: список того, что сюда нужно привезти (заказы).
+    public List<CargoType> cargoList = new List<CargoType>(); 
+    
+    // Контейнер для визуальных маркеров, чтобы не мусорить в иерархии
+    private Transform visualContainer;
 
-    // Метод для расчета изменения топлива при попадании сюда
     public int GetFuelCost()
     {
         switch (type)
         {
-            case PointType.GasStation:
-                return fuelRefillAmount; // Восполняем топливо (положительное число)
-            
-            case PointType.BadRoad:
-                return Random.Range(-3, 0); // Случайное число от -3 до -1 (Random.Range для int не включает макс. число, поэтому ставим 0, если хотим до -1)
-                // Исправлено: Random.Range(int min, int max) - max не включается. 
-                // Чтобы было от -3 до -1 включительно, нужно писать Random.Range(-3, -1 + 1) -> (-3, 0).
-                
-            default:
-                return -1; // Обычный расход
+            case PointType.GasStation: return 5;
+            case PointType.BadRoad: return Random.Range(-3, 0);
+            default: return -1;
         }
     }
 
-    // Вспомогательная линия в редакторе, чтобы видеть связи
-    private void OnDrawGizmos()
+    private void Start()
     {
-        Gizmos.color = Color.yellow;
-        foreach (var neighbor in neighbors)
+        if (type == PointType.Warehouse || type == PointType.Shop)
         {
-            if (neighbor != null)
-                Gizmos.DrawLine(transform.position, neighbor.transform.position);
+            UpdateVisuals();
         }
     }
-        private void Start()
+
+    // Метод для обновления шариков над точкой
+    public void UpdateVisuals()
     {
-        // Получаем доступ к "рисовалке" объекта
-        Renderer ren = GetComponent<Renderer>();
-        
-        if (ren != null)
+        // 1. Удаляем старые маркеры, если они были
+        if (visualContainer != null) Destroy(visualContainer.gameObject);
+
+        // 2. Если список пуст - ничего не рисуем
+        if (cargoList.Count == 0) return;
+
+        // 3. Создаем новый контейнер
+        visualContainer = new GameObject("VisualMarkers").transform;
+        visualContainer.parent = this.transform;
+        visualContainer.localPosition = Vector3.up * 2f; // Поднимаем над точкой
+
+        // 4. Рисуем каждый груз в ряд
+        float offset = 0f;
+        foreach (CargoType cargo in cargoList)
         {
-            switch (type)
-            {
-                case PointType.GasStation:
-                    ren.material.color = Color.green; // Заправка
-                    break;
-                case PointType.BadRoad:
-                    ren.material.color = new Color(0.5f, 0, 0); // Темно-красный (Опасность)
-                    break;
-                case PointType.Warehouse:
-                    ren.material.color = Color.blue; // Склад
-                    break;
-                case PointType.Shop:
-                    ren.material.color = Color.yellow; // Магазин
-                    break;
-                default:
-                    ren.material.color = Color.gray; // Обычная дорога
-                    break;
-            }
+            GameObject marker;
+            
+            // Для магазина делаем Кубики, для склада - Сферы (чтобы различать)
+            if (type == PointType.Shop) marker = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            else marker = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+
+            // Убираем лишний коллайдер
+            Destroy(marker.GetComponent<Collider>());
+
+            // Настройка размера и цвета
+            marker.transform.parent = visualContainer;
+            marker.transform.localScale = Vector3.one * 0.4f;
+            marker.transform.localPosition = new Vector3(offset, 0, 0); // Сдвигаем каждый следующий
+            
+            marker.GetComponent<Renderer>().material.color = CargoColors.GetColor(cargo);
+
+            offset += 0.6f; // Расстояние между шариками
         }
+        
+        // Центрируем весь ряд, чтобы было красиво
+        visualContainer.localPosition -= new Vector3((offset - 0.6f) / 2, 0, 0);
     }
 }

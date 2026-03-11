@@ -1,111 +1,218 @@
 using UnityEngine;
+using UnityEngine.InputSystem; // Обязательно для новой системы ввода
 using System.Collections;
 
+[RequireComponent(typeof(AudioSource))] // Автоматически добавит компонент звука
 public class PlayerController : MonoBehaviour
 {
-    public MapPoint currentPoint; // Текущая точка, где стоит игрок
-    public float moveSpeed = 5f;
-    
+    [Header("Навигация")]
+    public MapPoint currentPoint; // Текущая точка
+    public float moveSpeed = 5f;  // Скорость машины
+
+    [Header("Груз")]
+    public CargoType currentCargo = CargoType.None; // Какой груз везем
+    public GameObject cargoVisualObject; // Ссылка на кубик в кузове (нужно перетащить в инспекторе)
+
+    [Header("Звуки")]
+    public AudioClip engineSound; // Звук мотора (Loop)
+    public AudioClip arriveSound; // Звук прибытия (One Shot)
+
+    [Header("Эффекты")]
+    public ParticleSystem exhaustParticles; // Дым из трубы
+
+    // Внутренние переменные
+    private AudioSource audioSource;
     private bool isMoving = false;
+    private float lastMoveTime = 0f; // Таймер для защиты от двойных кликов
 
     private void Start()
     {
-        // При старте ставим машину на точку старта
+        // Настройка звука
+        audioSource = GetComponent<AudioSource>();
+        audioSource.loop = true; 
+        audioSource.clip = engineSound;
+        audioSource.Stop(); 
+
+        // Настройка дыма
+        if(exhaustParticles != null) exhaustParticles.Stop();
+
+        // Настройка позиции
         if (currentPoint != null)
         {
             transform.position = currentPoint.transform.position;
         }
+
+        // Скрываем груз на старте, если его нет
+        if (cargoVisualObject != null) cargoVisualObject.SetActive(false);
     }
 
     private void Update()
     {
-        // Простое управление мышкой: кликаем по точке, чтобы поехать
-        if (Input.GetMouseButtonDown(0) && !isMoving && GameManager.Instance.isGameActive)
+        // Если мыши нет (например, геймпад), выходим
+        if (Mouse.current == null) return;
+
+        // Проверка клика левой кнопкой
+        if (Mouse.current.leftButton.wasPressedThisFrame && !isMoving && GameManager.Instance.isGameActive)
         {
             HandleClick();
         }
     }
 
-void HandleClick()
-{
-    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-    RaycastHit hit;
-
-    // Рисуем луч в сцене (видно только в окне Scene, не в Game), чтобы понять куда он летит
-    Debug.DrawRay(ray.origin, ray.direction * 100, Color.red, 2f);
-
-    if (Physics.Raycast(ray, out hit))
+    void HandleClick()
     {
-        Debug.Log($"1. Лучь попал в объект: {hit.collider.name}");
+        // Пускаем луч от мышки
+        Vector2 mousePos = Mouse.current.position.ReadValue();
+        Ray ray = Camera.main.ScreenPointToRay(mousePos);
+        RaycastHit hit;
 
-        // Проверяем, есть ли скрипт MapPoint
-        MapPoint targetPoint = hit.collider.GetComponent<MapPoint>();
+        if (Physics.Raycast(ray, out hit))
+        {
+            // Пытаемся получить компонент точки
+            MapPoint targetPoint = hit.collider.GetComponent<MapPoint>();
 
-        if (targetPoint != null)
-        {
-            Debug.Log($"2. Это точка типа: {targetPoint.type}");
-            TryMove(targetPoint);
-        }
-        else
-        {
-            Debug.Log("2. На этом объекте НЕТ скрипта MapPoint!");
+            if (targetPoint != null)
+            {
+                TryMove(targetPoint);
+            }
         }
     }
-    else
-    {
-        Debug.Log("0. Клик в пустоту (Raycast ничего не задел)");
-    }
-}
 
     void TryMove(MapPoint target)
     {
-        // Проверяем, является ли целевая точка соседом текущей
+        // ЗАЩИТА: Если прошло меньше 0.5 сек с прошлого клика - игнорируем
+        if (Time.time - lastMoveTime < 0.5f) return;
+        
+        // Если уже едем - игнорируем
+        if (isMoving) return;
+
+        // Проверяем, является ли точка соседом
         if (currentPoint.neighbors.Contains(target))
         {
+            lastMoveTime = Time.time; // Запоминаем время клика
+            isMoving = true; // Блокируем движение сразу
+            
             StartCoroutine(MoveToPoint(target));
         }
         else
         {
-            Debug.Log("Сюда нельзя проехать напрямую!");
+            Debug.Log("Туда нельзя проехать напрямую!");
         }
     }
 
     IEnumerator MoveToPoint(MapPoint target)
     {
-        isMoving = true;
+        // --- СТАРТ ДВИЖЕНИЯ ---
+        if(engineSound != null) audioSource.Play(); // Звук вкл
+        if(exhaustParticles != null) exhaustParticles.Play(); // Дым вкл
 
-        // Движение к цели
+        // Поворот и перемещение
         while (Vector3.Distance(transform.position, target.transform.position) > 0.1f)
         {
             transform.position = Vector3.MoveTowards(transform.position, target.transform.position, moveSpeed * Time.deltaTime);
-            // Поворот машины к цели
             transform.LookAt(target.transform.position); 
             yield return null;
         }
 
-        // Прибыли
+        // --- ФИНИШ ---
         transform.position = target.transform.position;
         currentPoint = target;
         isMoving = false;
+        
+        audioSource.Stop(); // Звук выкл
+        if(exhaustParticles != null) exhaustParticles.Stop(); // Дым выкл
+        if(arriveSound != null) audioSource.PlayOneShot(arriveSound); // "Дзынь"
 
-        // Логика прибития в точку
+        // Логика прибытия
         ArriveAtPoint(target);
     }
 
-    void ArriveAtPoint(MapPoint point)
+       void ArriveAtPoint(MapPoint point)
     {
-        // 1. Тратим или получаем топливо
+        // 1. Топливо
         int fuelChange = point.GetFuelCost();
         GameManager.Instance.ModifyFuel(fuelChange);
 
-        // 2. Проверяем тип точки
+        // 2. ЛОГИКА СКЛАДА (Multi-Cargo)
         if (point.type == PointType.Warehouse)
         {
-            GameManager.Instance.PickUpCargo();
+            // Берем груз, только если машина пустая
+            if (currentCargo == CargoType.None)
+            {
+                // Проверяем, осталось ли что-то на складе
+                if (point.cargoList.Count > 0)
+                {
+                    // Берем самый первый груз из списка (индекс 0)
+                    CargoType takenCargo = point.cargoList[0];
+                    
+                    // Удаляем его со склада (физически забираем)
+                    point.cargoList.RemoveAt(0);
+                    
+                    // Обновляем визуал точки (шарик исчезнет)
+                    point.UpdateVisuals();
+
+                    // Кладем себе в кузов
+                    PickUpCargo(takenCargo);
+                }
+                else
+                {
+                    Debug.Log("Склад пуст!");
+                }
+            }
+            else
+            {
+                Debug.Log("У вас уже занят кузов! Доставьте текущий груз.");
+            }
         }
+        
+        // 3. ЛОГИКА МАГАЗИНА (Multi-Cargo)
         else if (point.type == PointType.Shop)
         {
-            GameManager.Instance.DeliverCargo();
+            if (currentCargo != CargoType.None)
+            {
+                // Проверяем, нужен ли магазину НАШ груз
+                if (point.cargoList.Contains(currentCargo))
+                {
+                    // Удаляем заказ из списка магазина (выполнено)
+                    point.cargoList.Remove(currentCargo);
+                    point.UpdateVisuals(); // Кубик исчезнет
+
+                    DeliverCargo();
+                }
+                else
+                {
+                    Debug.Log($"Магазину не нужен {currentCargo}. Ему нужны: " + string.Join(", ", point.cargoList));
+                }
+            }
         }
+    }
+
+    void PickUpCargo(CargoType type)
+    {
+        currentCargo = type;
+        Debug.Log($"Взят груз: {type}");
+        
+        // Включаем визуал (кубик в багажнике)
+        if (cargoVisualObject != null)
+        {
+            cargoVisualObject.SetActive(true);
+            // Красим кубик в цвет груза
+            cargoVisualObject.GetComponent<Renderer>().material.color = CargoColors.GetColor(type);
+        }
+        
+        GameManager.Instance.PickUpCargo(); // Обновляем UI
+    }
+
+    void DeliverCargo()
+    {
+        Debug.Log($"Груз {currentCargo} успешно доставлен!");
+        currentCargo = CargoType.None;
+
+        // Выключаем визуал
+        if (cargoVisualObject != null)
+        {
+            cargoVisualObject.SetActive(false);
+        }
+        
+        GameManager.Instance.DeliverCargo(); // Победа или +очки
     }
 }
