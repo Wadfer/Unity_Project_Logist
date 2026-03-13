@@ -46,7 +46,7 @@ public class GameManager : MonoBehaviour
     {
         totalOrders = 0;
         // Находим все точки на карте
-        MapPoint[] allPoints = FindObjectsOfType<MapPoint>();
+        MapPoint[] allPoints = FindObjectsByType<MapPoint>(FindObjectsSortMode.None);
 
         foreach (var point in allPoints)
         {
