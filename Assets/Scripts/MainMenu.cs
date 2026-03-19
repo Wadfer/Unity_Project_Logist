@@ -1,17 +1,11 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityEngine.SceneManagement; // Обязательно добавьте эту строку
 
 public class MainMenu : MonoBehaviour
 {
     public void PlayGame()
     {
-        // Загружаем сцену с игрой (убедись, что имя совпадает!)
+        // Название сцены должно в точности совпадать с названием вашего файла сцены
         SceneManager.LoadScene("GameLevel");
-    }
-
-    public void QuitGame()
-    {
-        Debug.Log("Выход из игры");
-        Application.Quit();
     }
 }
