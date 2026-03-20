@@ -1,31 +1,42 @@
 using UnityEngine;
-using UnityEngine.UI; 
-using UnityEngine.SceneManagement; 
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using System.Collections.Generic;
+
+// Создаем перечисление для сложности
+public enum LevelDifficulty
+{
+    Easy,   // Легкий (x1.5)
+    Medium, // Средний (x1.7)
+    Hard    // Сложный (x2.0)
+}
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
+    [Header("Настройки Уровня")]
+    public LevelDifficulty difficulty = LevelDifficulty.Easy; // Выбирается в Инспекторе
+
     [Header("Ресурсы")]
     public int currentFuel = 20;
     public int maxFuel = 20;
 
-    [Header("Прогресс Игры")]
-    public int totalOrders = 0;      // Сколько всего нужно доставить
-    public int completedOrders = 0;  // Сколько уже доставлено
+    [Header("Прогресс")]
+    public int totalOrders = 0;
+    public int completedOrders = 0;
     public bool isGameActive = true;
 
-    [Header("UI Элементы")]
-    public Text fuelText;  
-    public Text ordersText; // НОВОЕ: Текст "Заказы: 0/5"
-    public GameObject gameOverPanel; 
-    public Text gameOverText; 
+    [Header("UI")]
+    public Text fuelText;
+    public Text ordersText;
+    public GameObject gameOverPanel;
+    public Text gameOverText; // Текст Победы/Поражения (сюда допишем очки)
 
     [Header("Эффекты")]
-    public GameObject floatingTextPrefab; 
-    public Transform playerTransform; 
+    public GameObject floatingTextPrefab;
+    public Transform playerTransform;
 
-    // Защита от двойного списания
     private float lastFuelChangeTime = 0f;
 
     private void Awake()
@@ -35,28 +46,27 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        // 1. Считаем, сколько всего заказов на карте
         CalculateTotalOrders();
-
         UpdateUI();
-        if(gameOverPanel != null) gameOverPanel.SetActive(false);
+        if (gameOverPanel != null) gameOverPanel.SetActive(false);
+
+        // Обновляем стрелки (считаем, что в начале груза нет)
+        RefreshNavigationArrows(new List<CargoType>());
     }
 
     void CalculateTotalOrders()
     {
         totalOrders = 0;
-        // Находим все точки на карте
+        // Используем новый метод поиска
         MapPoint[] allPoints = FindObjectsByType<MapPoint>(FindObjectsSortMode.None);
 
         foreach (var point in allPoints)
         {
-            // Если это магазин - добавляем количество его заказов в общую сумму
             if (point.type == PointType.Shop)
             {
                 totalOrders += point.cargoList.Count;
             }
         }
-        Debug.Log($"Всего заказов на уровне: {totalOrders}");
     }
 
     public void ModifyFuel(int amount)
@@ -65,9 +75,8 @@ public class GameManager : MonoBehaviour
 
         // Защита от двойного списания
         if (Time.time - lastFuelChangeTime < 0.1f) return;
-        lastFuelChangeTime = Time.time; 
+        lastFuelChangeTime = Time.time;
 
-        // Эффект текста
         if (floatingTextPrefab != null && playerTransform != null)
         {
             GameObject go = Instantiate(floatingTextPrefab, playerTransform.position + Vector3.up * 2, Quaternion.identity);
@@ -81,52 +90,119 @@ public class GameManager : MonoBehaviour
 
         if (currentFuel <= 0)
         {
-            EndGame(false); // Проигрыш (бензин)
+            EndGame(false); // Проигрыш
         }
     }
 
-    // Этот метод вызывает Игрок, когда доставил груз
     public void DeliverCargo()
     {
         completedOrders++;
         UpdateUI();
 
-        // Проверяем победу
         if (completedOrders >= totalOrders)
         {
-            EndGame(true); // Победа (все заказы выполнены)
+            EndGame(true); // Победа
         }
     }
 
-    // Метод для обновления UI (просто заглушка, чтобы PlayerController не ругался)
-    public void PickUpCargo() 
-    {
-        // Можно добавить звук или эффект
-    }
+    public void PickUpCargo() { }
 
     void UpdateUI()
     {
         if (fuelText != null) 
             fuelText.text = $"Топливо: {currentFuel} / {maxFuel}";
         
-        // Обновляем текст заказов
         if (ordersText != null)
             ordersText.text = $"Заказы: {completedOrders} / {totalOrders}";
     }
 
+    // --- ЛОГИКА ОКОНЧАНИЯ ИГРЫ И ПОДСЧЕТА ОЧКОВ ---
     void EndGame(bool win)
     {
         isGameActive = false;
         if (gameOverPanel != null)
         {
             gameOverPanel.SetActive(true);
+
             if (gameOverText != null)
-                gameOverText.text = win ? "ВСЕ ЗАКАЗЫ ДОСТАВЛЕНЫ!\nПОБЕДА!" : "ТОПЛИВО КОНЧИЛОСЬ!\nПРОИГРЫШ";
+            {
+                if (win)
+                {
+                    // 1. Определяем коэффициент
+                    float multiplier = 1.0f;
+                    switch (difficulty)
+                    {
+                        case LevelDifficulty.Easy: multiplier = 1.5f; break;
+                        case LevelDifficulty.Medium: multiplier = 1.7f; break;
+                        case LevelDifficulty.Hard: multiplier = 2.0f; break;
+                    }
+
+                    // 2. Считаем очки (Топливо * Коэффициент)
+                    // Используем Mathf.RoundToInt, чтобы получить целое число
+                    int score = Mathf.RoundToInt(currentFuel * multiplier);
+
+                    // 3. Выводим красивый текст
+                    gameOverText.text = $"ПОБЕДА!\n\n" +
+                                        $"Остаток топлива: {currentFuel}\n" +
+                                        $"Сложность: {difficulty} (x{multiplier})\n" +
+                                        $"----------------\n" +
+                                        $"ИТОГОВЫЙ СЧЕТ: {score}";
+                    
+                    // (Опционально) Красим текст в зеленый
+                    gameOverText.color = Color.green;
+                }
+                else
+                {
+                    gameOverText.text = "ТОПЛИВО КОНЧИЛОСЬ!\n\nСЧЕТ: 0";
+                    gameOverText.color = Color.red;
+                }
+            }
         }
     }
 
     public void RestartLevel()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    // Навигация (Стрелки)
+    public void RefreshNavigationArrows(List<CargoType> playerCargoList)
+    {
+        MapPoint[] allPoints = FindObjectsByType<MapPoint>(FindObjectsSortMode.None);
+
+        foreach (var point in allPoints)
+        {
+            bool shouldShow = false;
+            Color arrowColor = Color.white;
+
+            if (playerCargoList.Count < 2)
+            {
+                if (point.type == PointType.Warehouse && point.cargoList.Count > 0)
+                {
+                    shouldShow = true;
+                    arrowColor = CargoColors.GetColor(point.cargoList[0]);
+                }
+            }
+
+            if (playerCargoList.Count > 0)
+            {
+                if (point.type == PointType.Shop)
+                {
+                    foreach (var cargo in playerCargoList)
+                    {
+                        if (point.cargoList.Contains(cargo))
+                        {
+                            shouldShow = true;
+                            arrowColor = CargoColors.GetColor(cargo);
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            if (playerCargoList.Count >= 2 && point.type == PointType.Warehouse) shouldShow = false;
+
+            point.ShowGuideArrow(shouldShow, arrowColor);
+        }
     }
 }

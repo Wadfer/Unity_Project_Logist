@@ -20,6 +20,9 @@ public class MapPoint : MonoBehaviour
     // Для Склада: список того, что здесь лежит и можно забрать.
     // Для Магазина: список того, что сюда нужно привезти (заказы).
     public List<CargoType> cargoList = new List<CargoType>(); 
+
+    [Tooltip("Высота стрелки над точкой")]
+    public float arrowHeight = 4f; 
     
     // Контейнер для визуальных маркеров, чтобы не мусорить в иерархии
     private Transform visualContainer;
@@ -33,12 +36,32 @@ public class MapPoint : MonoBehaviour
             default: return -1;
         }
     }
+        [Header("Навигация")]
+    public GameObject arrowPrefab; // Сюда перетащишь префаб стрелки
+    private GameObject myArrow;    // Ссылка на созданную стрелку
 
+    // В методе Start добавь создание стрелки:
     private void Start()
     {
-        if (type == PointType.Warehouse || type == PointType.Shop)
+        // Создаем стрелку, если префаб задан
+        if (arrowPrefab != null)
         {
-            UpdateVisuals();
+            myArrow = Instantiate(arrowPrefab, transform);
+            myArrow.transform.localPosition = Vector3.up * 4f; // Высоко над точкой
+            myArrow.SetActive(false); // Скрываем по умолчанию
+        }
+    }
+
+    // Метод: Показать стрелку определенного цвета
+    public void ShowGuideArrow(bool show, Color color = default)
+    {
+        if (myArrow != null)
+        {
+            myArrow.SetActive(show);
+            if (show && color != default)
+            {
+                myArrow.GetComponent<FloatingArrow>().SetColor(color);
+            }
         }
     }
 
