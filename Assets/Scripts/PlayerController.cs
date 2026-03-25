@@ -9,13 +9,17 @@ public class PlayerController : MonoBehaviour
     [Header("Навигация")]
     public MapPoint currentPoint;
     public float moveSpeed = 5f;
+    
+    // --- НОВАЯ НАСТРОЙКА ВЫСОТЫ МАШИНЫ ---
+    [Tooltip("На сколько поднять машину над дорогой, чтобы она не проваливалась")]
+    public float heightOffset = 0.5f; 
 
     [Header("Груз")]
     public List<CargoType> myCargo = new List<CargoType>();
     public int maxCargoCapacity = 2;
     
     [Header("Визуал Груза")]
-    public GameObject[] cargoVisuals; // Массив ссылок на кубики (2 штуки)
+    public GameObject[] cargoVisuals;
 
     [Header("Звуки и Эффекты")]
     public AudioClip engineSound;
@@ -34,15 +38,12 @@ public class PlayerController : MonoBehaviour
 
         if (currentPoint != null) 
         {
-            // Ставим машинку на точку
-            transform.position = currentPoint.transform.position;
+            // ИЗМЕНЕНИЕ: Прибавляем heightOffset при старте игры
+            transform.position = currentPoint.transform.position + Vector3.up * heightOffset;
 
-            // --- НОВАЯ ЛОГИКА: Проверяем, не склад ли это? ---
             if (currentPoint.type == PointType.Warehouse)
             {
-                bool tookCargo = false; // Флаг, взяли ли мы что-то
-                
-                // Забираем груз, пока есть место и пока на складе что-то есть
+                bool tookCargo = false; 
                 while (currentPoint.cargoList.Count > 0 && myCargo.Count < maxCargoCapacity)
                 {
                     CargoType taken = currentPoint.cargoList[0];
@@ -51,30 +52,17 @@ public class PlayerController : MonoBehaviour
                     Debug.Log($"Взят груз при старте: {taken}");
                     tookCargo = true;
                 }
-
-                // Если груз был взят, обновляем визуал склада (чтобы шарики пропали)
-                if (tookCargo)
-                {
-                    currentPoint.UpdateVisuals();
-                }
+                if (tookCargo) currentPoint.UpdateVisuals();
             }
         }
         
-        // Обновляем кубики в кузове машинки
         UpdateCargoVisuals();
-
-        // Важный момент: Обновляем стрелки навигации с микро-задержкой.
-        // Это нужно, чтобы GameManager точно успел загрузиться и не перебил наши стрелки.
         Invoke(nameof(UpdateArrowsDelayed), 0.1f);
     }
 
-    // Вспомогательный метод для обновления стрелок при старте
     private void UpdateArrowsDelayed()
     {
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.RefreshNavigationArrows(myCargo);
-        }
+        if (GameManager.Instance != null) GameManager.Instance.RefreshNavigationArrows(myCargo);
     }
 
     private void Update()
@@ -86,7 +74,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // !!! ЭТОТ МЕТОД БЫЛ ПОТЕРЯН, Я ЕГО ВЕРНУЛ !!!
     void HandleClick()
     {
         Vector2 mousePos = Mouse.current.position.ReadValue();
@@ -96,14 +83,10 @@ public class PlayerController : MonoBehaviour
         if (Physics.Raycast(ray, out hit))
         {
             MapPoint targetPoint = hit.collider.GetComponent<MapPoint>();
-            if (targetPoint != null)
-            {
-                TryMove(targetPoint);
-            }
+            if (targetPoint != null) TryMove(targetPoint);
         }
     }
 
-    // !!! ЭТОТ ТОЖЕ ВЕРНУЛ !!!
     void TryMove(MapPoint target)
     {
         if (Time.time - lastMoveTime < 0.5f) return;
@@ -117,20 +100,26 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // !!! И ЭТОТ !!!
     IEnumerator MoveToPoint(MapPoint target)
     {
         if(engineSound != null) audioSource.Play();
         if(exhaustParticles != null) exhaustParticles.Play();
 
-        while (Vector3.Distance(transform.position, target.transform.position) > 0.1f)
+        // ИЗМЕНЕНИЕ: Вычисляем финальную точку с учетом нашей высоты
+        Vector3 targetPosition = target.transform.position + Vector3.up * heightOffset;
+
+        while (Vector3.Distance(transform.position, targetPosition) > 0.05f)
         {
-            transform.position = Vector3.MoveTowards(transform.position, target.transform.position, moveSpeed * Time.deltaTime);
-            transform.LookAt(target.transform.position); 
+            transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+            
+            // Заставляем машину смотреть в точку назначения (также приподнятую)
+            transform.LookAt(targetPosition); 
+            
             yield return null;
         }
 
-        transform.position = target.transform.position;
+        // Фиксируем позицию в конце пути
+        transform.position = targetPosition;
         currentPoint = target;
         isMoving = false;
         
@@ -146,7 +135,6 @@ public class PlayerController : MonoBehaviour
         int fuelChange = point.GetFuelCost();
         GameManager.Instance.ModifyFuel(fuelChange);
 
-        // ЛОГИКА СКЛАДА
         if (point.type == PointType.Warehouse)
         {
             while (point.cargoList.Count > 0 && myCargo.Count < maxCargoCapacity)
@@ -154,12 +142,10 @@ public class PlayerController : MonoBehaviour
                 CargoType taken = point.cargoList[0];
                 point.cargoList.RemoveAt(0);
                 myCargo.Add(taken);
-                Debug.Log($"Взят груз: {taken}");
             }
             point.UpdateVisuals();
             UpdateCargoVisuals();
         }
-        // ЛОГИКА МАГАЗИНА
         else if (point.type == PointType.Shop)
         {
             for (int i = myCargo.Count - 1; i >= 0; i--)

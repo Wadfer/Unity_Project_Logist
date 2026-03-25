@@ -61,15 +61,19 @@ public class MapPoint : MonoBehaviour
 
     private void Start()
     {
-        // Создаем навигационную стрелку
+        // Создаем стрелку, если префаб задан
         if (arrowPrefab != null)
         {
-            myArrow = Instantiate(arrowPrefab, transform);
-            myArrow.transform.localPosition = Vector3.up * 4f; 
-            myArrow.SetActive(false); 
+            myArrow = Instantiate(arrowPrefab);
+            
+            // ИЗМЕНЕНИЕ ЗДЕСЬ: Просто ставим стрелку в центр точки на земле.
+            // Скрипт FloatingArrow сам поднимет её на нужную высоту!
+            myArrow.transform.position = transform.position; 
+            
+            myArrow.SetActive(false); // Скрываем по умолчанию
         }
 
-        // --- НОВЫЙ БЛОК: Создаем знак проблемы при старте ---
+        // Вызов создания знаков проблем
         SetupWarningSign();
     }
 
