@@ -32,8 +32,49 @@ public class PlayerController : MonoBehaviour
         audioSource.loop = true; audioSource.clip = engineSound; audioSource.Stop();
         if(exhaustParticles != null) exhaustParticles.Stop();
 
-        if (currentPoint != null) transform.position = currentPoint.transform.position;
+        if (currentPoint != null) 
+        {
+            // Ставим машинку на точку
+            transform.position = currentPoint.transform.position;
+
+            // --- НОВАЯ ЛОГИКА: Проверяем, не склад ли это? ---
+            if (currentPoint.type == PointType.Warehouse)
+            {
+                bool tookCargo = false; // Флаг, взяли ли мы что-то
+                
+                // Забираем груз, пока есть место и пока на складе что-то есть
+                while (currentPoint.cargoList.Count > 0 && myCargo.Count < maxCargoCapacity)
+                {
+                    CargoType taken = currentPoint.cargoList[0];
+                    currentPoint.cargoList.RemoveAt(0);
+                    myCargo.Add(taken);
+                    Debug.Log($"Взят груз при старте: {taken}");
+                    tookCargo = true;
+                }
+
+                // Если груз был взят, обновляем визуал склада (чтобы шарики пропали)
+                if (tookCargo)
+                {
+                    currentPoint.UpdateVisuals();
+                }
+            }
+        }
+        
+        // Обновляем кубики в кузове машинки
         UpdateCargoVisuals();
+
+        // Важный момент: Обновляем стрелки навигации с микро-задержкой.
+        // Это нужно, чтобы GameManager точно успел загрузиться и не перебил наши стрелки.
+        Invoke(nameof(UpdateArrowsDelayed), 0.1f);
+    }
+
+    // Вспомогательный метод для обновления стрелок при старте
+    private void UpdateArrowsDelayed()
+    {
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.RefreshNavigationArrows(myCargo);
+        }
     }
 
     private void Update()

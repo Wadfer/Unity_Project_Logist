@@ -1,13 +1,16 @@
 using UnityEngine;
-using System.Collections.Generic; // Нужно для списков
+using System.Collections.Generic;
 
+// 1. Обновляем список типов точек
 public enum PointType
 {
-    Road,
-    BadRoad,
-    GasStation,
-    Warehouse,
-    Shop
+    Road,           // Обычная дорога (-1 топливо)
+    TrafficLight,   // Светофор (-2 топлива)
+    RoadWorks,      // Дорожные работы (-3 топлива)
+    Accident,       // Авария (-4 топлива)
+    GasStation,     // Заправка (+5 топлива)
+    Warehouse,      // Склад (-1 топливо)
+    Shop            // Магазин (-1 топливо)
 }
 
 public class MapPoint : MonoBehaviour
@@ -17,41 +20,81 @@ public class MapPoint : MonoBehaviour
     public List<MapPoint> neighbors;
 
     [Header("Список Грузов")]
-    // Для Склада: список того, что здесь лежит и можно забрать.
-    // Для Магазина: список того, что сюда нужно привезти (заказы).
     public List<CargoType> cargoList = new List<CargoType>(); 
-
-    [Tooltip("Высота стрелки над точкой")]
     public float arrowHeight = 4f; 
     
-    // Контейнер для визуальных маркеров, чтобы не мусорить в иерархии
     private Transform visualContainer;
 
+    [Header("Навигация (Стрелки)")]
+    public GameObject arrowPrefab; 
+    private GameObject myArrow;    
+
+    // --- НОВЫЙ БЛОК: Иконки проблем ---
+    [Header("Знаки Проблем (2D)")]
+    public GameObject warningPrefab; // Сюда кидаем WarningSignPrefab
+    public Sprite trafficLightSprite; // Картинка светофора
+    public Sprite roadWorksSprite;    // Картинка ремонта
+    public Sprite accidentSprite;     // Картинка аварии 
+    public float warningHeight = 1.5f;
+
+    // 2. Обновляем математику расхода топлива
     public int GetFuelCost()
     {
         switch (type)
         {
-            case PointType.GasStation: return 5;
-            case PointType.BadRoad: return Random.Range(-3, 0);
-            default: return -1;
+            case PointType.GasStation: 
+                return 5;  // Дает 5 топлива
+
+            case PointType.TrafficLight: 
+                return -2; // -1 за ход, -1 за проблему
+
+            case PointType.RoadWorks: 
+                return -3; // -1 за ход, -2 за проблему
+
+            case PointType.Accident: 
+                return -4; // -1 за ход, -3 за проблему
+
+            default: 
+                return -1; // Обычная дорога, Склад и Магазин (-1 за перемещение)
         }
     }
-        [Header("Навигация")]
-    public GameObject arrowPrefab; // Сюда перетащишь префаб стрелки
-    private GameObject myArrow;    // Ссылка на созданную стрелку
 
-    // В методе Start добавь создание стрелки:
     private void Start()
     {
-        // Создаем стрелку, если префаб задан
+        // Создаем навигационную стрелку
         if (arrowPrefab != null)
         {
             myArrow = Instantiate(arrowPrefab, transform);
-            myArrow.transform.localPosition = Vector3.up * 4f; // Высоко над точкой
-            myArrow.SetActive(false); // Скрываем по умолчанию
+            myArrow.transform.localPosition = Vector3.up * 4f; 
+            myArrow.SetActive(false); 
         }
+
+        // --- НОВЫЙ БЛОК: Создаем знак проблемы при старте ---
+        SetupWarningSign();
     }
 
+    // Метод, который проверяет тип точки и вешает нужную картинку
+    private void SetupWarningSign()
+    {
+        if (warningPrefab == null) return;
+
+        Sprite iconToShow = null;
+
+        if (type == PointType.TrafficLight) iconToShow = trafficLightSprite;
+        else if (type == PointType.RoadWorks) iconToShow = roadWorksSprite;
+        else if (type == PointType.Accident) iconToShow = accidentSprite;
+
+        if (iconToShow != null)
+        {
+            GameObject sign = Instantiate(warningPrefab);
+            
+            // ИЗМЕНЕНИЕ: Мы просто ставим знак в центр точки на земле.
+            // Скрипт FloatingWarning сам поднимет его на свои minHeight и maxHeight!
+            sign.transform.position = transform.position; 
+            
+            sign.GetComponent<SpriteRenderer>().sprite = iconToShow;
+        }
+    }
     // Метод: Показать стрелку определенного цвета
     public void ShowGuideArrow(bool show, Color color = default)
     {

@@ -882,6 +882,11 @@ MonoBehaviour:
   cargoList: 
   arrowHeight: 7
   arrowPrefab: {fileID: 7308713442898532808, guid: b6ce8ab7bb0431d48a7a06c950c1b248, type: 3}
+  warningPrefab: {fileID: 5538869017956700617, guid: 4a3bb6ae7c6da3c499ddc4e709e1c7c6, type: 3}
+  trafficLightSprite: {fileID: 21300000, guid: d225b7642f0fed74bb8a0c0eb7f14e76, type: 3}
+  roadWorksSprite: {fileID: 692549543, guid: 36d901ed6550f4448b42ec7fec2cc560, type: 3}
+  accidentSprite: {fileID: 253106836, guid: c6deb6f0e1ca643489122bb70740fc2a, type: 3}
+  warningHeight: 1.5
 --- !u!64 &211248064
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -2132,6 +2137,11 @@ MonoBehaviour:
   cargoList: 0100000003000000
   arrowHeight: 7
   arrowPrefab: {fileID: 7308713442898532808, guid: b6ce8ab7bb0431d48a7a06c950c1b248, type: 3}
+  warningPrefab: {fileID: 5538869017956700617, guid: 4a3bb6ae7c6da3c499ddc4e709e1c7c6, type: 3}
+  trafficLightSprite: {fileID: 21300000, guid: d225b7642f0fed74bb8a0c0eb7f14e76, type: 3}
+  roadWorksSprite: {fileID: 692549543, guid: 36d901ed6550f4448b42ec7fec2cc560, type: 3}
+  accidentSprite: {fileID: 253106836, guid: c6deb6f0e1ca643489122bb70740fc2a, type: 3}
+  warningHeight: 1.5
 --- !u!64 &401877251
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -2394,6 +2404,11 @@ MonoBehaviour:
   cargoList: 
   arrowHeight: 7
   arrowPrefab: {fileID: 7308713442898532808, guid: b6ce8ab7bb0431d48a7a06c950c1b248, type: 3}
+  warningPrefab: {fileID: 5538869017956700617, guid: 4a3bb6ae7c6da3c499ddc4e709e1c7c6, type: 3}
+  trafficLightSprite: {fileID: 21300000, guid: d225b7642f0fed74bb8a0c0eb7f14e76, type: 3}
+  roadWorksSprite: {fileID: 692549543, guid: 36d901ed6550f4448b42ec7fec2cc560, type: 3}
+  accidentSprite: {fileID: 253106836, guid: c6deb6f0e1ca643489122bb70740fc2a, type: 3}
+  warningHeight: 1.5
 --- !u!64 &419547588
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -5880,6 +5895,11 @@ MonoBehaviour:
   cargoList: 03000000
   arrowHeight: 7
   arrowPrefab: {fileID: 7308713442898532808, guid: b6ce8ab7bb0431d48a7a06c950c1b248, type: 3}
+  warningPrefab: {fileID: 5538869017956700617, guid: 4a3bb6ae7c6da3c499ddc4e709e1c7c6, type: 3}
+  trafficLightSprite: {fileID: 21300000, guid: d225b7642f0fed74bb8a0c0eb7f14e76, type: 3}
+  roadWorksSprite: {fileID: 692549543, guid: 36d901ed6550f4448b42ec7fec2cc560, type: 3}
+  accidentSprite: {fileID: 253106836, guid: c6deb6f0e1ca643489122bb70740fc2a, type: 3}
+  warningHeight: 1.5
 --- !u!4 &1040777986 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 31bbda51eeab02f44a8e92a7da2f5ff8, type: 3}
@@ -7050,6 +7070,11 @@ MonoBehaviour:
   cargoList: 
   arrowHeight: 7
   arrowPrefab: {fileID: 7308713442898532808, guid: b6ce8ab7bb0431d48a7a06c950c1b248, type: 3}
+  warningPrefab: {fileID: 5538869017956700617, guid: 4a3bb6ae7c6da3c499ddc4e709e1c7c6, type: 3}
+  trafficLightSprite: {fileID: 21300000, guid: d225b7642f0fed74bb8a0c0eb7f14e76, type: 3}
+  roadWorksSprite: {fileID: 692549543, guid: 36d901ed6550f4448b42ec7fec2cc560, type: 3}
+  accidentSprite: {fileID: 253106836, guid: c6deb6f0e1ca643489122bb70740fc2a, type: 3}
+  warningHeight: 1.5
 --- !u!64 &1249456852
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -8005,6 +8030,11 @@ MonoBehaviour:
   cargoList: 
   arrowHeight: 7
   arrowPrefab: {fileID: 7308713442898532808, guid: b6ce8ab7bb0431d48a7a06c950c1b248, type: 3}
+  warningPrefab: {fileID: 5538869017956700617, guid: 4a3bb6ae7c6da3c499ddc4e709e1c7c6, type: 3}
+  trafficLightSprite: {fileID: 21300000, guid: d225b7642f0fed74bb8a0c0eb7f14e76, type: 3}
+  roadWorksSprite: {fileID: 692549543, guid: 36d901ed6550f4448b42ec7fec2cc560, type: 3}
+  accidentSprite: {fileID: 253106836, guid: c6deb6f0e1ca643489122bb70740fc2a, type: 3}
+  warningHeight: 1.5
 --- !u!64 &1434526232
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -12072,6 +12102,11 @@ MonoBehaviour:
   cargoList: 
   arrowHeight: 7
   arrowPrefab: {fileID: 7308713442898532808, guid: b6ce8ab7bb0431d48a7a06c950c1b248, type: 3}
+  warningPrefab: {fileID: 5538869017956700617, guid: 4a3bb6ae7c6da3c499ddc4e709e1c7c6, type: 3}
+  trafficLightSprite: {fileID: 21300000, guid: d225b7642f0fed74bb8a0c0eb7f14e76, type: 3}
+  roadWorksSprite: {fileID: 692549543, guid: 36d901ed6550f4448b42ec7fec2cc560, type: 3}
+  accidentSprite: {fileID: 253106836, guid: c6deb6f0e1ca643489122bb70740fc2a, type: 3}
+  warningHeight: 1.5
 --- !u!64 &2070076013
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -12205,6 +12240,11 @@ MonoBehaviour:
   cargoList: 01000000
   arrowHeight: 7
   arrowPrefab: {fileID: 7308713442898532808, guid: b6ce8ab7bb0431d48a7a06c950c1b248, type: 3}
+  warningPrefab: {fileID: 5538869017956700617, guid: 4a3bb6ae7c6da3c499ddc4e709e1c7c6, type: 3}
+  trafficLightSprite: {fileID: 21300000, guid: d225b7642f0fed74bb8a0c0eb7f14e76, type: 3}
+  roadWorksSprite: {fileID: 692549543, guid: 36d901ed6550f4448b42ec7fec2cc560, type: 3}
+  accidentSprite: {fileID: 253106836, guid: c6deb6f0e1ca643489122bb70740fc2a, type: 3}
+  warningHeight: 1.5
 --- !u!64 &2087958207
 MeshCollider:
   m_ObjectHideFlags: 0
