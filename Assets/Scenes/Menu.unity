@@ -2737,6 +2737,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2cee041c8bfd57447b00fda33fd5b0bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SimpleSoundToggle
+  soundOnIcon: {fileID: 779785040}
+  soundOffIcon: {fileID: 2040602121}
 --- !u!1 &736184345
 GameObject:
   m_ObjectHideFlags: 0
