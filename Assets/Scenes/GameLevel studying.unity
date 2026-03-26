@@ -5370,7 +5370,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraFollow
   target: {fileID: 853111725}
-  currentZoom: 13
+  currentZoom: 17
   minZoom: 5
   maxZoom: 40
   zoomSensitivity: 0
@@ -11282,6 +11282,6 @@ SceneRoots:
   - {fileID: 961739753}
   - {fileID: 203844589}
   - {fileID: 1817272561}
-  - {fileID: 964041230}
-  - {fileID: 1794407658}
   - {fileID: 1800660684}
+  - {fileID: 1794407658}
+  - {fileID: 964041230}
