@@ -980,13 +980,11 @@ MonoBehaviour:
   - {fileID: 1824375793}
   - {fileID: 1486265889}
   cargoList: 0100000002000000
-  arrowHeight: 1
   arrowPrefab: {fileID: 3577332432447560105, guid: f27ad80fc45086049a5d90f96f47c9fc, type: 3}
   warningPrefab: {fileID: 5538869017956700617, guid: 4a3bb6ae7c6da3c499ddc4e709e1c7c6, type: 3}
   trafficLightSprite: {fileID: 21300000, guid: d225b7642f0fed74bb8a0c0eb7f14e76, type: 3}
   roadWorksSprite: {fileID: 692549543, guid: 36d901ed6550f4448b42ec7fec2cc560, type: 3}
   accidentSprite: {fileID: 253106836, guid: c6deb6f0e1ca643489122bb70740fc2a, type: 3}
-  warningHeight: 1.5
 --- !u!135 &246079938
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1629,7 +1627,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 336475990}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!4 &336475994
 Transform:
   m_ObjectHideFlags: 0
@@ -1639,8 +1637,8 @@ Transform:
   m_GameObject: {fileID: 336475990}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.16427612, y: -1.6300099, z: -6.576477}
-  m_LocalScale: {x: 51.998398, y: 1.5, z: 70.9352}
+  m_LocalPosition: {x: 1.4, y: -1.6300099, z: -8.6}
+  m_LocalScale: {x: 70, y: 1.5, z: 70}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1304499189}
@@ -3075,13 +3073,11 @@ MonoBehaviour:
   - {fileID: 1643800749}
   - {fileID: 1902979648}
   cargoList: 
-  arrowHeight: 1
   arrowPrefab: {fileID: 3577332432447560105, guid: f27ad80fc45086049a5d90f96f47c9fc, type: 3}
   warningPrefab: {fileID: 5538869017956700617, guid: 4a3bb6ae7c6da3c499ddc4e709e1c7c6, type: 3}
   trafficLightSprite: {fileID: 21300000, guid: d225b7642f0fed74bb8a0c0eb7f14e76, type: 3}
   roadWorksSprite: {fileID: 692549543, guid: 36d901ed6550f4448b42ec7fec2cc560, type: 3}
   accidentSprite: {fileID: 253106836, guid: c6deb6f0e1ca643489122bb70740fc2a, type: 3}
-  warningHeight: 1.5
 --- !u!135 &672367005
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -5009,13 +5005,11 @@ MonoBehaviour:
   - {fileID: 1957554179}
   - {fileID: 1486265889}
   cargoList: 
-  arrowHeight: 1
   arrowPrefab: {fileID: 3577332432447560105, guid: f27ad80fc45086049a5d90f96f47c9fc, type: 3}
   warningPrefab: {fileID: 5538869017956700617, guid: 4a3bb6ae7c6da3c499ddc4e709e1c7c6, type: 3}
   trafficLightSprite: {fileID: 21300000, guid: d225b7642f0fed74bb8a0c0eb7f14e76, type: 3}
   roadWorksSprite: {fileID: 692549543, guid: 36d901ed6550f4448b42ec7fec2cc560, type: 3}
   accidentSprite: {fileID: 253106836, guid: c6deb6f0e1ca643489122bb70740fc2a, type: 3}
-  warningHeight: 1.5
 --- !u!135 &1130402744
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -6081,7 +6075,7 @@ Transform:
   m_GameObject: {fileID: 1304499188}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 442.6357, y: -0.04999, z: 228.37648}
+  m_LocalPosition: {x: 442.7, y: -0.5, z: 231}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -6607,11 +6601,17 @@ MonoBehaviour:
   totalOrders: 0
   completedOrders: 0
   isGameActive: 1
-  fuelText: {fileID: 0}
-  ordersText: {fileID: 0}
-  gameOverPanel: {fileID: 0}
+  gameplayHUD: {fileID: 1954486947}
+  fuelText: {fileID: 1954486945}
+  ordersText: {fileID: 1954486946}
+  gameOverPanel: {fileID: 1954486951}
   gameOverText: {fileID: 0}
-  floatingTextPrefab: {fileID: 8346321541509043450, guid: 57aa2c6d03d0dc448b31dc18591a1ff2, type: 3}
+  scoreText: {fileID: 1954486948}
+  nextLevelButton: {fileID: 1954486950}
+  resultImageBanner: {fileID: 1954486949}
+  winSprite: {fileID: 21300000, guid: 1b94a4b2f528461498b3fcd0c1beeddc, type: 3}
+  loseSprite: {fileID: 21300000, guid: aee53c161cb723345b436f9105e9b93c, type: 3}
+  floatingTextPrefab: {fileID: 7813883099993270578, guid: a073e89f463c09944bf88cda56f93924, type: 3}
   playerTransform: {fileID: 1292156528}
 --- !u!4 &1434558879
 Transform:
@@ -6901,13 +6901,11 @@ MonoBehaviour:
   - {fileID: 1824375793}
   - {fileID: 246079937}
   cargoList: 
-  arrowHeight: 1
   arrowPrefab: {fileID: 3577332432447560105, guid: f27ad80fc45086049a5d90f96f47c9fc, type: 3}
   warningPrefab: {fileID: 5538869017956700617, guid: 4a3bb6ae7c6da3c499ddc4e709e1c7c6, type: 3}
   trafficLightSprite: {fileID: 21300000, guid: d225b7642f0fed74bb8a0c0eb7f14e76, type: 3}
   roadWorksSprite: {fileID: 692549543, guid: 36d901ed6550f4448b42ec7fec2cc560, type: 3}
   accidentSprite: {fileID: 253106836, guid: c6deb6f0e1ca643489122bb70740fc2a, type: 3}
-  warningHeight: 1.5
 --- !u!135 &1486265890
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -7619,13 +7617,11 @@ MonoBehaviour:
   - {fileID: 1902979648}
   - {fileID: 1824375793}
   cargoList: 
-  arrowHeight: 1
   arrowPrefab: {fileID: 3577332432447560105, guid: f27ad80fc45086049a5d90f96f47c9fc, type: 3}
   warningPrefab: {fileID: 5538869017956700617, guid: 4a3bb6ae7c6da3c499ddc4e709e1c7c6, type: 3}
   trafficLightSprite: {fileID: 21300000, guid: d225b7642f0fed74bb8a0c0eb7f14e76, type: 3}
   roadWorksSprite: {fileID: 692549543, guid: 36d901ed6550f4448b42ec7fec2cc560, type: 3}
   accidentSprite: {fileID: 253106836, guid: c6deb6f0e1ca643489122bb70740fc2a, type: 3}
-  warningHeight: 1.5
 --- !u!135 &1643800750
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -8283,7 +8279,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1808299901}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!4 &1808299905
 Transform:
   m_ObjectHideFlags: 0
@@ -8293,8 +8289,8 @@ Transform:
   m_GameObject: {fileID: 1808299901}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.16427612, y: -0.50001, z: -6.576477}
-  m_LocalScale: {x: 51.998398, y: 1, z: 70.9352}
+  m_LocalPosition: {x: 1.3999939, y: -0.50001, z: -8.600006}
+  m_LocalScale: {x: 70, y: 1, z: 70}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1304499189}
@@ -8415,13 +8411,11 @@ MonoBehaviour:
   - {fileID: 1486265889}
   - {fileID: 246079937}
   cargoList: 02000000
-  arrowHeight: 1
   arrowPrefab: {fileID: 3577332432447560105, guid: f27ad80fc45086049a5d90f96f47c9fc, type: 3}
   warningPrefab: {fileID: 5538869017956700617, guid: 4a3bb6ae7c6da3c499ddc4e709e1c7c6, type: 3}
   trafficLightSprite: {fileID: 21300000, guid: d225b7642f0fed74bb8a0c0eb7f14e76, type: 3}
   roadWorksSprite: {fileID: 692549543, guid: 36d901ed6550f4448b42ec7fec2cc560, type: 3}
   accidentSprite: {fileID: 253106836, guid: c6deb6f0e1ca643489122bb70740fc2a, type: 3}
-  warningHeight: 1.5
 --- !u!135 &1824375794
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -8865,13 +8859,11 @@ MonoBehaviour:
   - {fileID: 1643800749}
   - {fileID: 1486265889}
   cargoList: 
-  arrowHeight: 1
   arrowPrefab: {fileID: 3577332432447560105, guid: f27ad80fc45086049a5d90f96f47c9fc, type: 3}
   warningPrefab: {fileID: 5538869017956700617, guid: 4a3bb6ae7c6da3c499ddc4e709e1c7c6, type: 3}
   trafficLightSprite: {fileID: 21300000, guid: d225b7642f0fed74bb8a0c0eb7f14e76, type: 3}
   roadWorksSprite: {fileID: 692549543, guid: 36d901ed6550f4448b42ec7fec2cc560, type: 3}
   accidentSprite: {fileID: 253106836, guid: c6deb6f0e1ca643489122bb70740fc2a, type: 3}
-  warningHeight: 1.5
 --- !u!135 &1902979649
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -9043,6 +9035,186 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: c3e95e72d6dba334594c3c5c37fcf18a, type: 3}
   m_PrefabInstance: {fileID: 1952118709}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &1954486944
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 256314391516020918, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+      propertyPath: m_Pivot.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 256314391516020918, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 256314391516020918, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 256314391516020918, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 256314391516020918, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 256314391516020918, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 256314391516020918, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 256314391516020918, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 256314391516020918, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 256314391516020918, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 256314391516020918, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 256314391516020918, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 256314391516020918, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 256314391516020918, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 256314391516020918, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 256314391516020918, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 256314391516020918, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 256314391516020918, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 256314391516020918, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 256314391516020918, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 621908430578802150, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+      propertyPath: m_Name
+      value: Canvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 1858392500124382988, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1434558878}
+    - target: {fileID: 1858392500124382988, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: LoadMainMenu
+      objectReference: {fileID: 0}
+    - target: {fileID: 4590198930201529150, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1434558878}
+    - target: {fileID: 4590198930201529150, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: RestartLevel
+      objectReference: {fileID: 0}
+    - target: {fileID: 5336443161959501634, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1434558878}
+    - target: {fileID: 5336443161959501634, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: LoadNextLevel
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+--- !u!114 &1954486945 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6320679655906025279, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+  m_PrefabInstance: {fileID: 1954486944}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+--- !u!114 &1954486946 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7860905004323086965, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+  m_PrefabInstance: {fileID: 1954486944}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+--- !u!1 &1954486947 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2648012297386286621, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+  m_PrefabInstance: {fileID: 1954486944}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1954486948 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5316116221370809454, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+  m_PrefabInstance: {fileID: 1954486944}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+--- !u!114 &1954486949 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3147827982656820690, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+  m_PrefabInstance: {fileID: 1954486944}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+--- !u!1 &1954486950 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8927438135775411171, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+  m_PrefabInstance: {fileID: 1954486944}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1954486951 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2225899847345129648, guid: 5771344aa13bd4942ae9bd54329752ac, type: 3}
+  m_PrefabInstance: {fileID: 1954486944}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1956829680
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9158,13 +9330,11 @@ MonoBehaviour:
   - {fileID: 1130402743}
   - {fileID: 672367004}
   cargoList: 01000000
-  arrowHeight: 1
   arrowPrefab: {fileID: 3577332432447560105, guid: f27ad80fc45086049a5d90f96f47c9fc, type: 3}
   warningPrefab: {fileID: 5538869017956700617, guid: 4a3bb6ae7c6da3c499ddc4e709e1c7c6, type: 3}
   trafficLightSprite: {fileID: 21300000, guid: d225b7642f0fed74bb8a0c0eb7f14e76, type: 3}
   roadWorksSprite: {fileID: 692549543, guid: 36d901ed6550f4448b42ec7fec2cc560, type: 3}
   accidentSprite: {fileID: 253106836, guid: c6deb6f0e1ca643489122bb70740fc2a, type: 3}
-  warningHeight: 1.5
 --- !u!135 &1957554180
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -9970,3 +10140,4 @@ SceneRoots:
   - {fileID: 1292156526}
   - {fileID: 235556106}
   - {fileID: 1304499189}
+  - {fileID: 1954486944}
