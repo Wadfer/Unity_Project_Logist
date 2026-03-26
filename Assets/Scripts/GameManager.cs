@@ -160,11 +160,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void RestartLevel()
-    {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-    }
-
     // Навигация (Стрелки)
     public void RefreshNavigationArrows(List<CargoType> playerCargoList)
     {
@@ -172,37 +167,8 @@ public class GameManager : MonoBehaviour
 
         foreach (var point in allPoints)
         {
-            bool shouldShow = false;
-            Color arrowColor = Color.white;
-
-            if (playerCargoList.Count < 2)
-            {
-                if (point.type == PointType.Warehouse && point.cargoList.Count > 0)
-                {
-                    shouldShow = true;
-                    arrowColor = CargoColors.GetColor(point.cargoList[0]);
-                }
-            }
-
-            if (playerCargoList.Count > 0)
-            {
-                if (point.type == PointType.Shop)
-                {
-                    foreach (var cargo in playerCargoList)
-                    {
-                        if (point.cargoList.Contains(cargo))
-                        {
-                            shouldShow = true;
-                            arrowColor = CargoColors.GetColor(cargo);
-                            break;
-                        }
-                    }
-                }
-            }
-            
-            if (playerCargoList.Count >= 2 && point.type == PointType.Warehouse) shouldShow = false;
-
-            point.ShowGuideArrow(shouldShow, arrowColor);
+            // Передаем каждой точке информацию о том, что сейчас лежит в кузове
+            point.UpdateArrows(playerCargoList);
         }
     }
 }

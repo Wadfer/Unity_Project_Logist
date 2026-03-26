@@ -1,16 +1,15 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-// 1. Обновляем список типов точек
 public enum PointType
 {
-    Road,           // Обычная дорога (-1 топливо)
-    TrafficLight,   // Светофор (-2 топлива)
-    RoadWorks,      // Дорожные работы (-3 топлива)
-    Accident,       // Авария (-4 топлива)
-    GasStation,     // Заправка (+5 топлива)
-    Warehouse,      // Склад (-1 топливо)
-    Shop            // Магазин (-1 топливо)
+    Road,
+    TrafficLight,
+    RoadWorks,
+    Accident,
+    GasStation,
+    Warehouse,
+    Shop
 }
 
 public class MapPoint : MonoBehaviour
@@ -21,69 +20,123 @@ public class MapPoint : MonoBehaviour
 
     [Header("Список Грузов")]
     public List<CargoType> cargoList = new List<CargoType>(); 
-    public float arrowHeight = 4f; 
-    
+
     private Transform visualContainer;
 
     [Header("Навигация (Стрелки)")]
     public GameObject arrowPrefab; 
-    private GameObject myArrow;    
+    private List<GameObject> activeArrows = new List<GameObject>(); // Список стрелок
 
-    // --- НОВЫЙ БЛОК: Иконки проблем ---
     [Header("Знаки Проблем (2D)")]
-    public GameObject warningPrefab; // Сюда кидаем WarningSignPrefab
-    public Sprite trafficLightSprite; // Картинка светофора
-    public Sprite roadWorksSprite;    // Картинка ремонта
-    public Sprite accidentSprite;     // Картинка аварии 
-    public float warningHeight = 1.5f;
+    public GameObject warningPrefab; 
+    public Sprite trafficLightSprite; 
+    public Sprite roadWorksSprite;    
+    public Sprite accidentSprite;     
 
-    // 2. Обновляем математику расхода топлива
     public int GetFuelCost()
     {
         switch (type)
         {
-            case PointType.GasStation: 
-                return 5;  // Дает 5 топлива
-
-            case PointType.TrafficLight: 
-                return -2; // -1 за ход, -1 за проблему
-
-            case PointType.RoadWorks: 
-                return -3; // -1 за ход, -2 за проблему
-
-            case PointType.Accident: 
-                return -4; // -1 за ход, -3 за проблему
-
-            default: 
-                return -1; // Обычная дорога, Склад и Магазин (-1 за перемещение)
+            case PointType.GasStation: return 5;
+            case PointType.TrafficLight: return -2;
+            case PointType.RoadWorks: return -3;
+            case PointType.Accident: return -4;
+            default: return -1;
         }
     }
 
     private void Start()
     {
-        // Создаем стрелку, если префаб задан
-        if (arrowPrefab != null)
-        {
-            myArrow = Instantiate(arrowPrefab);
-            
-            // ИЗМЕНЕНИЕ ЗДЕСЬ: Просто ставим стрелку в центр точки на земле.
-            // Скрипт FloatingArrow сам поднимет её на нужную высоту!
-            myArrow.transform.position = transform.position; 
-            
-            myArrow.SetActive(false); // Скрываем по умолчанию
-        }
-
-        // Вызов создания знаков проблем
+        // При старте только вешаем знаки. Стрелки вызовет GameManager!
         SetupWarningSign();
     }
 
-    // Метод, который проверяет тип точки и вешает нужную картинку
+    // Метод для шариков (только Склад)
+    public void UpdateVisuals()
+    {
+        if (visualContainer != null) Destroy(visualContainer.gameObject);
+        if (type == PointType.Shop) return; 
+        if (cargoList.Count == 0) return;
+
+        visualContainer = new GameObject("VisualMarkers").transform;
+        visualContainer.parent = this.transform;
+        visualContainer.localPosition = Vector3.up * 2f; 
+
+        float offset = 0f;
+        foreach (CargoType cargo in cargoList)
+        {
+            GameObject marker = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            Destroy(marker.GetComponent<Collider>());
+            marker.transform.parent = visualContainer;
+            marker.transform.localScale = Vector3.one * 0.4f;
+            marker.transform.localPosition = new Vector3(offset, 0, 0); 
+            marker.GetComponent<Renderer>().material.color = CargoColors.GetColor(cargo);
+            offset += 0.6f; 
+        }
+        visualContainer.localPosition -= new Vector3((offset - 0.6f) / 2, 0, 0);
+    }
+
+    // Умный метод для стрелок (Склад и Магазин)
+    public void UpdateArrows(List<CargoType> playerCargo)
+    {
+        // 1. Стираем все старые стрелки
+        foreach (GameObject arrow in activeArrows)
+        {
+            if (arrow != null) Destroy(arrow);
+        }
+        activeArrows.Clear();
+
+        if (arrowPrefab == null) return;
+
+        // 2. Список того, что нужно нарисовать
+        List<CargoType> arrowsToShow = new List<CargoType>();
+
+        if (type == PointType.Warehouse)
+        {
+            // Склад показывает всё, что у него лежит
+            arrowsToShow.AddRange(cargoList);
+        }
+        else if (type == PointType.Shop)
+        {
+            // Магазин проверяет кузов игрока
+            if (playerCargo != null && playerCargo.Count > 0)
+            {
+                // Временная копия кузова, чтобы правильно считать дубликаты
+                List<CargoType> tempPlayerCargo = new List<CargoType>(playerCargo);
+
+                foreach (CargoType neededCargo in cargoList)
+                {
+                    if (tempPlayerCargo.Contains(neededCargo))
+                    {
+                        arrowsToShow.Add(neededCargo);       // Подходит! Добавляем стрелку
+                        tempPlayerCargo.Remove(neededCargo); // Вычеркиваем груз
+                    }
+                }
+            }
+        }
+
+        // Если список пуст (кузов пустой или цвета не совпали) - выходим, ничего не рисуем
+        if (arrowsToShow.Count == 0) return;
+
+        // 3. Рисуем нужные стрелки из списка
+        float spacing = 1.0f; 
+        float startX = -((arrowsToShow.Count - 1) * spacing) / 2f;
+
+        for (int i = 0; i < arrowsToShow.Count; i++)
+        {
+            GameObject newArrow = Instantiate(arrowPrefab);
+            Vector3 spawnPos = transform.position + new Vector3(startX + (i * spacing), 0, 0);
+            newArrow.transform.position = spawnPos;
+            newArrow.GetComponent<FloatingArrow>().SetColor(CargoColors.GetColor(arrowsToShow[i]));
+            activeArrows.Add(newArrow);
+        }
+    }
+
     private void SetupWarningSign()
     {
         if (warningPrefab == null) return;
 
         Sprite iconToShow = null;
-
         if (type == PointType.TrafficLight) iconToShow = trafficLightSprite;
         else if (type == PointType.RoadWorks) iconToShow = roadWorksSprite;
         else if (type == PointType.Accident) iconToShow = accidentSprite;
@@ -91,65 +144,9 @@ public class MapPoint : MonoBehaviour
         if (iconToShow != null)
         {
             GameObject sign = Instantiate(warningPrefab);
-            
-            // ИЗМЕНЕНИЕ: Мы просто ставим знак в центр точки на земле.
-            // Скрипт FloatingWarning сам поднимет его на свои minHeight и maxHeight!
             sign.transform.position = transform.position; 
-            
             sign.GetComponent<SpriteRenderer>().sprite = iconToShow;
         }
     }
-    // Метод: Показать стрелку определенного цвета
-    public void ShowGuideArrow(bool show, Color color = default)
-    {
-        if (myArrow != null)
-        {
-            myArrow.SetActive(show);
-            if (show && color != default)
-            {
-                myArrow.GetComponent<FloatingArrow>().SetColor(color);
-            }
-        }
-    }
-
-    // Метод для обновления шариков над точкой
-    public void UpdateVisuals()
-    {
-        // 1. Удаляем старые маркеры, если они были
-        if (visualContainer != null) Destroy(visualContainer.gameObject);
-
-        // 2. Если список пуст - ничего не рисуем
-        if (cargoList.Count == 0) return;
-
-        // 3. Создаем новый контейнер
-        visualContainer = new GameObject("VisualMarkers").transform;
-        visualContainer.parent = this.transform;
-        visualContainer.localPosition = Vector3.up * 2f; // Поднимаем над точкой
-
-        // 4. Рисуем каждый груз в ряд
-        float offset = 0f;
-        foreach (CargoType cargo in cargoList)
-        {
-            GameObject marker;
-            
-            // Для магазина делаем Кубики, для склада - Сферы (чтобы различать)
-            if (type == PointType.Shop) marker = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            else marker = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-
-            // Убираем лишний коллайдер
-            Destroy(marker.GetComponent<Collider>());
-
-            // Настройка размера и цвета
-            marker.transform.parent = visualContainer;
-            marker.transform.localScale = Vector3.one * 0.4f;
-            marker.transform.localPosition = new Vector3(offset, 0, 0); // Сдвигаем каждый следующий
-            
-            marker.GetComponent<Renderer>().material.color = CargoColors.GetColor(cargo);
-
-            offset += 0.6f; // Расстояние между шариками
-        }
-        
-        // Центрируем весь ряд, чтобы было красиво
-        visualContainer.localPosition -= new Vector3((offset - 0.6f) / 2, 0, 0);
-    }
+    
 }

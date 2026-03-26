@@ -19,6 +19,13 @@ public class MainMenu : MonoBehaviour
     public void QuitGame()
     {
         Debug.Log("Выход из игры");
+        
+        // Эта команда закрывает сбилженную игру (на ПК или телефоне)
         Application.Quit();
+
+        // А эта команда останавливает режим Play прямо внутри редактора Unity!
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
     }
 }
