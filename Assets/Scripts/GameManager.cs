@@ -118,10 +118,10 @@ public class GameManager : MonoBehaviour
     void UpdateUI()
     {
         if (fuelText != null) 
-            fuelText.text = $"Топливо: {currentFuel} / {maxFuel}";
+            fuelText.text = $": {currentFuel} / {maxFuel}";
         
         if (ordersText != null)
-            ordersText.text = $"Заказы: {completedOrders} / {totalOrders}";
+            ordersText.text = $": {completedOrders} / {totalOrders}";
     }
 
     // --- ЛОГИКА ОКОНЧАНИЯ ИГРЫ ---

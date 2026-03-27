@@ -30,7 +30,7 @@ public class PlayerController : MonoBehaviour
     private bool isMoving = false;
     private float lastMoveTime = 0f;
 
-    private void Start()
+    public void Start()
     {
         audioSource = GetComponent<AudioSource>();
         audioSource.loop = true; audioSource.clip = engineSound; audioSource.Stop();
@@ -42,18 +42,10 @@ public class PlayerController : MonoBehaviour
             transform.position = currentPoint.transform.position + Vector3.up * heightOffset;
 
             if (currentPoint.type == PointType.Warehouse)
-            {
-                bool tookCargo = false; 
-                while (currentPoint.cargoList.Count > 0 && myCargo.Count < maxCargoCapacity)
-                {
-                    CargoType taken = currentPoint.cargoList[0];
-                    currentPoint.cargoList.RemoveAt(0);
-                    myCargo.Add(taken);
-                    Debug.Log($"Взят груз при старте: {taken}");
-                    tookCargo = true;
-                }
-                if (tookCargo) currentPoint.UpdateVisuals();
-            }
+        {
+            // Открываем UI меню вместо автоматического забора
+            CargoSelectionUI.Instance.Open(currentPoint, this);
+        }
         }
         
         UpdateCargoVisuals();
@@ -94,6 +86,9 @@ public class PlayerController : MonoBehaviour
 
         if (currentPoint.neighbors.Contains(target))
         {
+            // --- МЕНЯЕМ ЭТУ СТРОЧКУ НА МГНОВЕННОЕ ЗАКРЫТИЕ ---
+            if (CargoSelectionUI.Instance != null) CargoSelectionUI.Instance.CloseInstantly();
+
             lastMoveTime = Time.time;
             isMoving = true;
             StartCoroutine(MoveToPoint(target));
@@ -137,14 +132,8 @@ public class PlayerController : MonoBehaviour
 
         if (point.type == PointType.Warehouse)
         {
-            while (point.cargoList.Count > 0 && myCargo.Count < maxCargoCapacity)
-            {
-                CargoType taken = point.cargoList[0];
-                point.cargoList.RemoveAt(0);
-                myCargo.Add(taken);
-            }
-            point.UpdateVisuals();
-            UpdateCargoVisuals();
+            // Открываем UI меню вместо автоматического забора
+            CargoSelectionUI.Instance.Open(point, this);
         }
         else if (point.type == PointType.Shop)
         {
@@ -165,7 +154,7 @@ public class PlayerController : MonoBehaviour
         GameManager.Instance.RefreshNavigationArrows(myCargo);
     }
 
-    void UpdateCargoVisuals()
+    public void UpdateCargoVisuals()
     {
         for (int i = 0; i < cargoVisuals.Length; i++)
         {

@@ -31,7 +31,8 @@ public class MapPoint : MonoBehaviour
     public GameObject warningPrefab; 
     public Sprite trafficLightSprite; 
     public Sprite roadWorksSprite;    
-    public Sprite accidentSprite;     
+    public Sprite accidentSprite;    
+    public Sprite gasStationSprite; 
 
     public int GetFuelCost()
     {
@@ -147,6 +148,10 @@ public class MapPoint : MonoBehaviour
             sign.transform.position = transform.position; 
             sign.GetComponent<SpriteRenderer>().sprite = iconToShow;
         }
+        if (type == PointType.TrafficLight) iconToShow = trafficLightSprite;
+        else if (type == PointType.RoadWorks) iconToShow = roadWorksSprite;
+        else if (type == PointType.Accident) iconToShow = accidentSprite;
+        else if (type == PointType.GasStation) iconToShow = gasStationSprite;
     }
     
 }
