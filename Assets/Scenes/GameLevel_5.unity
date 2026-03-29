@@ -6513,9 +6513,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f82f43072678eef449d5faf014d3441c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  difficulty: 0
-  currentFuel: 20
-  maxFuel: 20
+  difficulty: 1
+  currentFuel: 21
+  maxFuel: 21
   totalOrders: 0
   completedOrders: 0
   isGameActive: 1

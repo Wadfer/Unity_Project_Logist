@@ -4089,9 +4089,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f82f43072678eef449d5faf014d3441c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  difficulty: 0
-  currentFuel: 20
-  maxFuel: 20
+  difficulty: 1
+  currentFuel: 22
+  maxFuel: 22
   totalOrders: 0
   completedOrders: 0
   isGameActive: 1
@@ -5652,7 +5652,7 @@ Transform:
   m_GameObject: {fileID: 1529041948}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 364.7, y: 0.12, z: 222.3}
+  m_LocalPosition: {x: 369.7, y: 0.12, z: 226.7}
   m_LocalScale: {x: 1.5, y: 1, z: 1.5}
   m_ConstrainProportionsScale: 0
   m_Children:
