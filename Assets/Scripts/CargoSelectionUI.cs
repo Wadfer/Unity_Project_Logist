@@ -140,6 +140,19 @@ public class CargoSelectionUI : MonoBehaviour
         GameManager.Instance.RefreshNavigationArrows(player.myCargo);
 
         RefreshUI();
+
+        // Защита: вызываем ачивки, ТОЛЬКО если AchievementManager есть на сцене
+        if (AchievementManager.Instance != null)
+        {
+            // [АЧИВКА ID 3]: Загрузка пошла
+            AchievementManager.Instance.UnlockAchievement(3);
+
+            // [АЧИВКА ID 1]: Два в кузове
+            if (player.myCargo.Count >= 2 && player.myCargo[0] != player.myCargo[1])
+            {
+                AchievementManager.Instance.UnlockAchievement(1);
+            }
+        }
     }
     public void CloseInstantly()
     {

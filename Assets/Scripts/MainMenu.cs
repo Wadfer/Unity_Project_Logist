@@ -3,6 +3,14 @@ using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
+    private void Start()
+    {
+        // Когда мы возвращаемся в меню после уровня, заставляем UI показать свежие деньги
+        if (CurrencyManager.Instance != null)
+        {
+            CurrencyManager.Instance.UpdateBalanceUI();
+        }
+    }
     // Метод для кнопки "Играть" (загружает первый уровень)
     public void PlayGame()
     {

@@ -132,7 +132,6 @@ public class MapPoint : MonoBehaviour
             activeArrows.Add(newArrow);
         }
     }
-
     private void SetupWarningSign()
     {
         if (warningPrefab == null) return;

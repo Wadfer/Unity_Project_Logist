@@ -7,6 +7,8 @@ using System.Collections.Generic;
 [RequireComponent(typeof(AudioSource))]
 public class PlayerController : MonoBehaviour
 {
+    private HashSet<MapPoint> visitedPoints = new HashSet<MapPoint>();
+    
     [Header("Навигация")]
     public MapPoint currentPoint;
     public float moveSpeed = 5f;
@@ -128,6 +130,15 @@ public class PlayerController : MonoBehaviour
 
     void ArriveAtPoint(MapPoint point)
     {
+        visitedPoints.Add(point);
+
+        // Защита от ошибки
+        if (AchievementManager.Instance != null)
+        {
+            if (visitedPoints.Count >= 10) AchievementManager.Instance.UnlockAchievement(6);
+            if (point.type == PointType.GasStation) AchievementManager.Instance.UnlockAchievement(8);
+            if (point.type == PointType.TrafficLight || point.type == PointType.RoadWorks || point.type == PointType.Accident) AchievementManager.Instance.UnlockAchievement(9);
+        }
         int fuelChange = point.GetFuelCost();
         GameManager.Instance.ModifyFuel(fuelChange);
 

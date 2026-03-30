@@ -109,6 +109,13 @@ public class GameManager : MonoBehaviour
         completedOrders++;
         UpdateUI();
 
+        // [АЧИВКА ID 2]: Первая доставка
+    // В методе DeliverCargo:
+    if (completedOrders == 1 && AchievementManager.Instance != null) 
+    {
+        AchievementManager.Instance.UnlockAchievement(2);
+    }
+
         if (completedOrders >= totalOrders)
         {
             EndGame(true); 
@@ -138,8 +145,18 @@ public class GameManager : MonoBehaviour
 
             if (win)
             {
-                if (resultImageBanner != null) resultImageBanner.sprite = winSprite;
-
+                // В методе EndGame (внутри if (win)):
+                if (AchievementManager.Instance != null)
+                {
+                    AchievementManager.Instance.UnlockAchievement(4);
+                    if (currentFuel == 1) AchievementManager.Instance.UnlockAchievement(5);
+                    if (currentFuel >= 2) AchievementManager.Instance.UnlockAchievement(10);
+        
+                    int streak = PlayerPrefs.GetInt("WinStreak", 0) + 1;
+                    PlayerPrefs.SetInt("WinStreak", streak);
+                    if (streak >= 3) AchievementManager.Instance.UnlockAchievement(7);
+                }
+                
                 float multiplier = 1.0f;
                 switch (difficulty)
                 {
@@ -163,9 +180,35 @@ public class GameManager : MonoBehaviour
                 }
 
                 if (nextLevelButton != null) nextLevelButton.SetActive(true); 
+                
+                    // Берем индекс текущей сцены и прибавляем 1
+                int nextLevelIndex = SceneManager.GetActiveScene().buildIndex + 1;
+            
+                // Получаем, какой уровень открыт сейчас
+                int currentUnlocked = PlayerPrefs.GetInt("UnlockedLevel", 1);
+
+                // Если мы открыли новый уровень
+                if (nextLevelIndex > currentUnlocked)
+                {
+                    // Запоминаем локально
+                    PlayerPrefs.SetInt("UnlockedLevel", nextLevelIndex);
+                    PlayerPrefs.Save();
+
+                    // Если игрок залогинен (у него есть ID) - отправляем в базу данных!
+                    if (PlayerPrefs.HasKey("PlayerID"))
+                    {
+                        int playerId = PlayerPrefs.GetInt("PlayerID");
+                        StartCoroutine(SaveProgressToServer(playerId, nextLevelIndex));
+                    }
+                }
+            }
+        
             }
             else
             {
+                // Сбрасываем серию побед при проигрыше
+                PlayerPrefs.SetInt("WinStreak", 0);
+
                 if (resultImageBanner != null) resultImageBanner.sprite = loseSprite;
 
                 if (gameOverText != null)
@@ -183,8 +226,6 @@ public class GameManager : MonoBehaviour
                 if (nextLevelButton != null) nextLevelButton.SetActive(false);
             }
         }
-    }
-
     // --- МЕНЮ И УРОВНИ ---
     public void RestartLevel()
     {
@@ -218,6 +259,52 @@ public class GameManager : MonoBehaviour
         foreach (var point in allPoints)
         {
             point.UpdateArrows(playerCargoList);
+        }
+    }
+        // --- ИНТЕГРАЦИЯ С БАЗОЙ ДАННЫХ ---
+    // Эту функцию будет вызывать DatabaseManager, когда скачает данные
+    public void SetupFromDatabase(int dbFuel, int dbDifficultyId)
+    {
+        // 1. Устанавливаем топливо из БД
+        maxFuel = dbFuel;
+        currentFuel = dbFuel;
+
+        // 2. Устанавливаем сложность на основе id_coefficient из БД
+        // Предполагаем, что в базе: 1 = Легко, 2 = Средне, 3 = Сложно
+        switch (dbDifficultyId)
+        {
+            case 1: difficulty = LevelDifficulty.Easy; break;
+            case 2: difficulty = LevelDifficulty.Medium; break;
+            case 3: difficulty = LevelDifficulty.Hard; break;
+            default: difficulty = LevelDifficulty.Easy; break; // Если ID неизвестный, ставим Легко
+        }
+
+        // 3. Обновляем текст на экране с новыми цифрами
+        UpdateUI();
+
+        Debug.Log($"<color=orange>[GameManager] Данные применены! Топливо: {maxFuel}, Сложность: {difficulty}</color>");
+    }
+        private System.Collections.IEnumerator SaveProgressToServer(int userId, int nextLevel)
+    {
+        // Не забудь вставить свой верный домен!
+        string url = "http://example.local/save_level.php"; 
+
+        WWWForm form = new WWWForm();
+        form.AddField("user_id", userId.ToString());
+        form.AddField("new_level", nextLevel.ToString());
+
+        using (UnityEngine.Networking.UnityWebRequest request = UnityEngine.Networking.UnityWebRequest.Post(url, form))
+        {
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityEngine.Networking.UnityWebRequest.Result.Success)
+            {
+                Debug.Log("Прогресс успешно сохранен на сервере!");
+            }
+            else
+            {
+                Debug.LogError("Ошибка сохранения на сервер: " + request.error);
+            }
         }
     }
 }
