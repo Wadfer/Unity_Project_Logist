@@ -6,8 +6,8 @@ using TMPro;
 public class AuthManager : MonoBehaviour
 {
     [Header("Ссылки на сервер")]
-    private string loginURL = "http://example.local/login.php";
-    private string registerURL = "http://example.local/register.php";
+    private string loginURL = "http://138.124.230.211/login.php";
+    private string registerURL = "http://138.124.230.211/register.php";
 
     [Header("Окно: ВХОД")]
     public GameObject authMenuPanel; // Сама панель AutihMenu (чтобы закрыть её при успехе)
@@ -141,6 +141,7 @@ public class AuthManager : MonoBehaviour
             else
             {
                 string jsonResponse = request.downloadHandler.text;
+                Debug.Log("<color=cyan>СЫРОЙ ОТВЕТ СЕРВЕРА:</color> \n" + jsonResponse);
                 AuthResponse response = JsonUtility.FromJson<AuthResponse>(jsonResponse);
 
                 if (response != null && response.status == "success")

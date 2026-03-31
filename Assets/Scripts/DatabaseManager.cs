@@ -4,7 +4,7 @@ using UnityEngine.Networking;
 
 public class DatabaseManager : MonoBehaviour
 {
-    private string url = "http://example.local/get_data.php"; // Твой адрес!
+    private string url = "http://138.124.230.211/get_data.php"; // Твой адрес!
 
     [Header("Настройки сцены")]
     public string currentLevelNumber = "1";

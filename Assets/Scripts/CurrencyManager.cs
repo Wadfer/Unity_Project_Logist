@@ -95,7 +95,7 @@ public class CurrencyManager : MonoBehaviour
     private IEnumerator UpdateBalanceInDB(int userId, float newBalance)
     {
         // Не забудь вставить свой домен!
-        string url = "http://example.local/update_balance.php"; 
+        string url = "http://138.124.230.211/update_balance.php"; 
 
         WWWForm form = new WWWForm();
         form.AddField("user_id", userId.ToString());

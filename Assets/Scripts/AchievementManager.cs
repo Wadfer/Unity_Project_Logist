@@ -188,7 +188,7 @@ public class AchievementManager : MonoBehaviour
     private IEnumerator SendAchievementToDB(int userId, int achId)
     {
         // ВНИМАНИЕ: Проверь, правильный ли здесь IP-адрес!
-        string url = "http://example.local/save_achievement.php"; 
+        string url = "http://138.124.230.211/save_achievement.php"; 
 
         WWWForm form = new WWWForm();
         form.AddField("user_id", userId.ToString());

@@ -110,11 +110,10 @@ public class GameManager : MonoBehaviour
         UpdateUI();
 
         // [АЧИВКА ID 2]: Первая доставка
-    // В методе DeliverCargo:
-    if (completedOrders == 1 && AchievementManager.Instance != null) 
-    {
-        AchievementManager.Instance.UnlockAchievement(2);
-    }
+        if (completedOrders == 1 && AchievementManager.Instance != null) 
+        {
+            AchievementManager.Instance.UnlockAchievement(2);
+        }
 
         if (completedOrders >= totalOrders)
         {
@@ -145,7 +144,7 @@ public class GameManager : MonoBehaviour
 
             if (win)
             {
-                // В методе EndGame (внутри if (win)):
+                // АЧИВКИ
                 if (AchievementManager.Instance != null)
                 {
                     AchievementManager.Instance.UnlockAchievement(4);
@@ -157,6 +156,7 @@ public class GameManager : MonoBehaviour
                     if (streak >= 3) AchievementManager.Instance.UnlockAchievement(7);
                 }
                 
+                // ПОДСЧЕТ ОЧКОВ
                 float multiplier = 1.0f;
                 switch (difficulty)
                 {
@@ -166,6 +166,7 @@ public class GameManager : MonoBehaviour
                 }
                 int score = Mathf.RoundToInt(currentFuel * multiplier);
 
+                // ОБНОВЛЕНИЕ ТЕКСТА
                 if (gameOverText != null)
                 {
                     gameOverText.text = $"Остаток топлива: {currentFuel}\n" +
@@ -181,32 +182,39 @@ public class GameManager : MonoBehaviour
 
                 if (nextLevelButton != null) nextLevelButton.SetActive(true); 
                 
-                    // Берем индекс текущей сцены и прибавляем 1
-                int nextLevelIndex = SceneManager.GetActiveScene().buildIndex + 1;
-            
-                // Получаем, какой уровень открыт сейчас
+                // === ЛОГИКА СОХРАНЕНИЯ ПРОГРЕССА И ОЧКОВ ===
+                int currentLevelIndex = SceneManager.GetActiveScene().buildIndex;
+                int nextLevelIndex = currentLevelIndex + 1;
                 int currentUnlocked = PlayerPrefs.GetInt("UnlockedLevel", 1);
 
-                // Если мы открыли новый уровень
-                if (nextLevelIndex > currentUnlocked)
+                if (PlayerPrefs.HasKey("PlayerID"))
                 {
-                    // Запоминаем локально
-                    PlayerPrefs.SetInt("UnlockedLevel", nextLevelIndex);
-                    PlayerPrefs.Save();
+                    int playerId = PlayerPrefs.GetInt("PlayerID");
 
-                    // Если игрок залогинен (у него есть ID) - отправляем в базу данных!
-                    if (PlayerPrefs.HasKey("PlayerID"))
+                    // 1. НОВОЕ: Отправляем заработанные очки в БД (передаем номер ТЕКУЩЕГО уровня)
+                    StartCoroutine(SaveScoreToServer(playerId, currentLevelIndex, score));
+
+                    // 2. СТАРОЕ: Если открыли новый уровень - сохраняем прогресс в БД
+                    if (nextLevelIndex > currentUnlocked)
                     {
-                        int playerId = PlayerPrefs.GetInt("PlayerID");
+                        PlayerPrefs.SetInt("UnlockedLevel", nextLevelIndex);
+                        PlayerPrefs.Save();
                         StartCoroutine(SaveProgressToServer(playerId, nextLevelIndex));
                     }
                 }
-            }
-        
+                else
+                {
+                    // Для гостя просто сохраняем прогресс локально
+                    if (nextLevelIndex > currentUnlocked)
+                    {
+                        PlayerPrefs.SetInt("UnlockedLevel", nextLevelIndex);
+                        PlayerPrefs.Save();
+                    }
+                }
             }
             else
             {
-                // Сбрасываем серию побед при проигрыше
+                // ПРОИГРЫШ
                 PlayerPrefs.SetInt("WinStreak", 0);
 
                 if (resultImageBanner != null) resultImageBanner.sprite = loseSprite;
@@ -226,6 +234,8 @@ public class GameManager : MonoBehaviour
                 if (nextLevelButton != null) nextLevelButton.SetActive(false);
             }
         }
+    }
+
     // --- МЕНЮ И УРОВНИ ---
     public void RestartLevel()
     {
@@ -261,33 +271,28 @@ public class GameManager : MonoBehaviour
             point.UpdateArrows(playerCargoList);
         }
     }
-        // --- ИНТЕГРАЦИЯ С БАЗОЙ ДАННЫХ ---
-    // Эту функцию будет вызывать DatabaseManager, когда скачает данные
+
+    // --- ИНТЕГРАЦИЯ С БАЗОЙ ДАННЫХ ---
     public void SetupFromDatabase(int dbFuel, int dbDifficultyId)
     {
-        // 1. Устанавливаем топливо из БД
         maxFuel = dbFuel;
         currentFuel = dbFuel;
 
-        // 2. Устанавливаем сложность на основе id_coefficient из БД
-        // Предполагаем, что в базе: 1 = Легко, 2 = Средне, 3 = Сложно
         switch (dbDifficultyId)
         {
             case 1: difficulty = LevelDifficulty.Easy; break;
             case 2: difficulty = LevelDifficulty.Medium; break;
             case 3: difficulty = LevelDifficulty.Hard; break;
-            default: difficulty = LevelDifficulty.Easy; break; // Если ID неизвестный, ставим Легко
+            default: difficulty = LevelDifficulty.Easy; break; 
         }
 
-        // 3. Обновляем текст на экране с новыми цифрами
         UpdateUI();
-
         Debug.Log($"<color=orange>[GameManager] Данные применены! Топливо: {maxFuel}, Сложность: {difficulty}</color>");
     }
-        private System.Collections.IEnumerator SaveProgressToServer(int userId, int nextLevel)
+
+    private System.Collections.IEnumerator SaveProgressToServer(int userId, int nextLevel)
     {
-        // Не забудь вставить свой верный домен!
-        string url = "http://example.local/save_level.php"; 
+        string url = "http://138.124.230.211/save_level.php"; // ПРОВЕРЬ СВОЙ АДРЕС
 
         WWWForm form = new WWWForm();
         form.AddField("user_id", userId.ToString());
@@ -304,6 +309,31 @@ public class GameManager : MonoBehaviour
             else
             {
                 Debug.LogError("Ошибка сохранения на сервер: " + request.error);
+            }
+        }
+    }
+
+    // --- НОВАЯ КОРУТИНА ДЛЯ СОХРАНЕНИЯ ОЧКОВ ---
+    private System.Collections.IEnumerator SaveScoreToServer(int userId, int levelId, int score)
+    {
+        string url = "http://138.124.230.211/save_score.php";  // ПРОВЕРЬ СВОЙ АДРЕС
+
+        WWWForm form = new WWWForm();
+        form.AddField("user_id", userId.ToString());
+        form.AddField("level_id", levelId.ToString());
+        form.AddField("score", score.ToString());
+
+        using (UnityEngine.Networking.UnityWebRequest request = UnityEngine.Networking.UnityWebRequest.Post(url, form))
+        {
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityEngine.Networking.UnityWebRequest.Result.Success)
+            {
+                Debug.Log("<color=cyan>Ответ сервера (Очки): " + request.downloadHandler.text + "</color>");
+            }
+            else
+            {
+                Debug.LogError("Ошибка сохранения очков: " + request.error);
             }
         }
     }
