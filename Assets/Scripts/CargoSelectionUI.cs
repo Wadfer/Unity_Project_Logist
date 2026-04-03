@@ -1,6 +1,6 @@
+// CargoSelectionUI.cs
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
 
 public class CargoSelectionUI : MonoBehaviour
 {
@@ -8,14 +8,9 @@ public class CargoSelectionUI : MonoBehaviour
 
     [Header("UI Основа")]
     public GameObject panel;
-    public CanvasGroup canvasGroup;
-    public float heightOffset = 3f;
 
     [Header("Готовые слоты (Перетащи со сцены)")]
-    [Tooltip("3 верхние кнопки склада")]
     public Button[] warehouseSlots; 
-    
-    [Tooltip("2 нижних слота игрока (пустые рамки)")]
     public GameObject[] playerSlots; 
 
     [Header("Картинки (Спрайты)")]
@@ -25,32 +20,22 @@ public class CargoSelectionUI : MonoBehaviour
 
     private MapPoint currentWarehouse;
     private PlayerController player;
-    private Camera mainCam;
     private bool isOpen = false;
 
     private void Awake()
     {
         Instance = this;
-        mainCam = Camera.main;
         panel.SetActive(false);
     }
 
-    private void Update()
-    {
-        if (isOpen && mainCam != null)
-        {
-            Vector3 dir = mainCam.transform.position - transform.position;
-            if (dir != Vector3.zero) transform.rotation = Quaternion.LookRotation(-dir);
-        }
-    }
+    // Убрали метод Update() — нам больше не нужно следить за камерой!
 
     public void Open(MapPoint warehouse, PlayerController p)
     {
         currentWarehouse = warehouse;
         player = p;
 
-        transform.position = warehouse.transform.position + Vector3.up * heightOffset;
-        panel.SetActive(true);
+        panel.SetActive(true); // Просто включаем панель на экране
         isOpen = true;
 
         RefreshUI();
@@ -58,65 +43,46 @@ public class CargoSelectionUI : MonoBehaviour
 
     private void RefreshUI()
     {
-        // 1. ОБНОВЛЯЕМ СКЛАД (ВЕРХНИЙ РЯД)
+        // 1. ОБНОВЛЯЕМ СКЛАД
         for (int i = 0; i < warehouseSlots.Length; i++)
         {
             Button btn = warehouseSlots[i];
-            // Находим картинку коробки внутри кнопки (первый дочерний объект)
             Image boxIcon = btn.transform.GetChild(0).GetComponent<Image>();
-            
-            // Сбрасываем старые нажатия
             btn.onClick.RemoveAllListeners();
 
-            // Если для этого слота есть груз на складе
             if (i < currentWarehouse.cargoList.Count)
             {
                 CargoType cargo = currentWarehouse.cargoList[i];
                 boxIcon.sprite = GetBoxSprite(cargo);
-                boxIcon.enabled = true; // Показываем коробку
+                boxIcon.enabled = true;
 
-                // Если кузов полон - кнопку нажимать нельзя
                 if (player.myCargo.Count >= player.maxCargoCapacity)
-                {
                     btn.interactable = false;
-                }
                 else
                 {
                     btn.interactable = true;
-                    int index = i; // Обязательно сохраняем индекс для кнопки
+                    int index = i; 
                     btn.onClick.AddListener(() => TakeCargo(index, cargo));
                 }
             }
             else
             {
-                // Груза нет - прячем коробку (желтая рамка остается), отключаем кнопку
                 boxIcon.enabled = false;
                 btn.interactable = false;
             }
         }
 
-        // 2. ОБНОВЛЯЕМ КУЗОВ ИГРОКА (НИЖНИЙ РЯД)
+        // 2. ОБНОВЛЯЕМ КУЗОВ ИГРОКА
         for (int i = 0; i < playerSlots.Length; i++)
         {
-            // Находим картинку коробки внутри слота
             Image boxIcon = playerSlots[i].transform.GetChild(0).GetComponent<Image>();
-
             if (i < player.myCargo.Count)
             {
-                // Показываем груз, который лежит в кузове
                 boxIcon.sprite = GetBoxSprite(player.myCargo[i]);
                 boxIcon.enabled = true;
             }
-            else
-            {
-                // Место пустое - прячем коробку (желтая рамка остается)
-                boxIcon.enabled = false;
-            }
+            else boxIcon.enabled = false;
         }
-
-        // Если все забрали или забили кузов полностью - можно не закрывать автоматически,
-        // игрок сам уедет и меню закроется. Но если хочешь авто-закрытие - раскомментируй:
-        // if (currentWarehouse.cargoList.Count == 0 || player.myCargo.Count >= player.maxCargoCapacity) CloseSmoothly();
     }
 
     private Sprite GetBoxSprite(CargoType type)
@@ -141,24 +107,18 @@ public class CargoSelectionUI : MonoBehaviour
 
         RefreshUI();
 
-        // Защита: вызываем ачивки, ТОЛЬКО если AchievementManager есть на сцене
         if (AchievementManager.Instance != null)
         {
-            // [АЧИВКА ID 3]: Загрузка пошла
             AchievementManager.Instance.UnlockAchievement(3);
-
-            // [АЧИВКА ID 1]: Два в кузове
             if (player.myCargo.Count >= 2 && player.myCargo[0] != player.myCargo[1])
-            {
                 AchievementManager.Instance.UnlockAchievement(1);
-            }
         }
     }
+
     public void CloseInstantly()
     {
         if (!isOpen) return;
         isOpen = false;
-        StopAllCoroutines(); // На всякий случай останавливаем появление, если оно шло
-        panel.SetActive(false); // Выключаем мгновенно
+        panel.SetActive(false); // Просто выключаем панель
     }
 }

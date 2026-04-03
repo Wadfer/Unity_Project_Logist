@@ -46,6 +46,9 @@ public class GameManager : MonoBehaviour
     public GameObject floatingTextPrefab;
     public Transform playerTransform;
 
+    [Header("Лидерборд (в конце игры)")]
+    public TMP_Text leaderboardText; // Текст, куда впишем список игроков
+
     private float lastFuelChangeTime = 0f;
 
     private void Awake()
@@ -194,6 +197,8 @@ public class GameManager : MonoBehaviour
                     // 1. НОВОЕ: Отправляем заработанные очки в БД (передаем номер ТЕКУЩЕГО уровня)
                     StartCoroutine(SaveScoreToServer(playerId, currentLevelIndex, score));
 
+                    StartCoroutine(LoadLeaderboard(currentLevelIndex));
+
                     // 2. СТАРОЕ: Если открыли новый уровень - сохраняем прогресс в БД
                     if (nextLevelIndex > currentUnlocked)
                     {
@@ -336,5 +341,55 @@ public class GameManager : MonoBehaviour
                 Debug.LogError("Ошибка сохранения очков: " + request.error);
             }
         }
+    }
+    private System.Collections.IEnumerator LoadLeaderboard(int levelId)
+    {
+        if (leaderboardText != null) leaderboardText.text = "Загрузка топ игроков...";
+
+        string url = "http://138.124.230.211/get_leaderboard.php";
+        WWWForm form = new WWWForm();
+        form.AddField("level_id", levelId.ToString());
+
+        using (UnityEngine.Networking.UnityWebRequest request = UnityEngine.Networking.UnityWebRequest.Post(url, form))
+        {
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityEngine.Networking.UnityWebRequest.Result.Success)
+            {
+                LeaderboardResponse res = JsonUtility.FromJson<LeaderboardResponse>(request.downloadHandler.text);
+            
+                if (res != null && res.status == "success")
+                {
+                    string board = "ТОП ИГРОКОВ:\n\n";
+                    for (int i = 0; i < res.leaders.Length; i++)
+                    {
+                        board += $"{i + 1}. {res.leaders[i].username} - {res.leaders[i].score_points} очк.\n";
+                    }
+
+                    if (res.leaders.Length == 0) board += "Пока нет рекордов. Ты первый!";
+                
+                    if (leaderboardText != null) leaderboardText.text = board;
+                }
+            }
+            else
+            {
+                if (leaderboardText != null) leaderboardText.text = "Ошибка загрузки лидеров";
+            }
+        }
+    }
+
+    // Вспомогательные классы для Лидерборда (положи в самом низу файла)
+    [System.Serializable]
+    public class LeaderboardResponse
+    {
+        public string status;
+        public LeaderInfo[] leaders;
+    }
+
+    [System.Serializable]
+    public class LeaderInfo
+    {
+        public string username;
+        public int score_points;
     }
 }

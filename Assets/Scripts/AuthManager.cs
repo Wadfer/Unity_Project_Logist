@@ -27,6 +27,10 @@ public class AuthManager : MonoBehaviour
     public GameObject profilePanel;    // Панель с ником и кнопкой Выход
     public TMP_Text profileNameText;   // Текст, где будет написан Никнейм
 
+    [Header("Окно: Ошибка РЕГИСТРАЦИИ (Панель 2)")]
+    public GameObject regErrorPanel;    // Сюда перетащишь панель "Логин занят"
+    [Header("Окно: Ошибка ВХОДА (Панель 3)")]
+    public GameObject loginErrorPanel; // Сюда перетащишь панель "Неверные данные"
     private void Start()
     {
         // При старте игры проверяем, вошел ли игрок ранее
@@ -66,6 +70,7 @@ public class AuthManager : MonoBehaviour
         PlayerPrefs.DeleteKey("PlayerScore");
         PlayerPrefs.DeleteKey("PlayerBalance");
         PlayerPrefs.DeleteKey("UnlockedLevel");
+        PlayerPrefs.DeleteKey("EquippedSkinID");
 
         // --- ДОБАВЛЯЕМ ВОТ ЭТУ СТРОЧКУ ---
         PlayerPrefs.DeleteKey("WinStreak");
@@ -122,7 +127,7 @@ public class AuthManager : MonoBehaviour
     // ==========================================
     // ОБЩАЯ КАРТИНА ДЛЯ ОТПРАВКИ ЗАПРОСОВ
     // ==========================================
-    private IEnumerator SendAuthRequest(string url, string login, string password, bool isLogin)
+     private IEnumerator SendAuthRequest(string url, string login, string password, bool isLogin)
     {
         WWWForm form = new WWWForm();
         form.AddField("login", login);
@@ -134,16 +139,18 @@ public class AuthManager : MonoBehaviour
 
             TMP_Text currentStatusText = isLogin ? loginStatusText : regStatusText;
 
+            // ЕСЛИ СЕРВЕР ВООБЩЕ НЕ ОТВЕТИЛ (НЕТ ИНТЕРНЕТА)
             if (request.result != UnityWebRequest.Result.Success)
             {
                 SetStatus(currentStatusText, "Ошибка сервера!", Color.red);
+                ShowErrorPanel(isLogin, "Нет связи с сервером!");
             }
             else
             {
                 string jsonResponse = request.downloadHandler.text;
-                Debug.Log("<color=cyan>СЫРОЙ ОТВЕТ СЕРВЕРА:</color> \n" + jsonResponse);
                 AuthResponse response = JsonUtility.FromJson<AuthResponse>(jsonResponse);
 
+                // ЕСЛИ ВСЁ УСПЕШНО
                 if (response != null && response.status == "success")
                 {
                     SetStatus(currentStatusText, response.message, Color.green);
@@ -156,7 +163,11 @@ public class AuthManager : MonoBehaviour
                         PlayerPrefs.SetInt("PlayerScore", response.score);
                         PlayerPrefs.SetInt("UnlockedLevel", response.unlocked_level);
                         PlayerPrefs.SetFloat("PlayerBalance", response.balance); 
+                        PlayerPrefs.SetInt("EquippedSkinID", response.equipped_skin == 0 ? 1 : response.equipped_skin);
                         PlayerPrefs.Save(); 
+
+                        SkinController skinCtrl = FindAnyObjectByType<SkinController>();
+                        if (skinCtrl != null) skinCtrl.ApplySkin(PlayerPrefs.GetInt("EquippedSkinID"));
 
                         if (authMenuPanel != null) authMenuPanel.SetActive(false);
                         if (regMenuPanel != null) regMenuPanel.SetActive(false);
@@ -164,9 +175,7 @@ public class AuthManager : MonoBehaviour
 
                         CheckLoginState();
 
-                        // --- ДОБАВИТЬ ЭТУ СТРОЧКУ СЮДА ---
                         if (CurrencyManager.Instance != null) CurrencyManager.Instance.UpdateBalanceUI();
-                        // ---------------------------------
 
                         loginLogInput.text = ""; loginPassInput.text = "";
                         regLogInput.text = ""; regPassInput.text = "";
@@ -181,9 +190,26 @@ public class AuthManager : MonoBehaviour
                 }
                 else
                 {
+                    // === ОШИБКА (ЛОГИН ЗАНЯТ ИЛИ НЕВЕРНЫЙ ПАРОЛЬ) ===
                     SetStatus(currentStatusText, response?.message ?? "Ошибка", Color.red);
+                    ShowErrorPanel(isLogin, response?.message ?? "Неизвестная ошибка");
                 }
             }
+        }
+    }
+
+    // Вспомогательный метод, чтобы код был чистым
+    private void ShowErrorPanel(bool isLogin, string message)
+    {
+        if (isLogin)
+        {
+            // ОШИБКА ВХОДА (Панель 3)
+            if (loginErrorPanel != null) loginErrorPanel.SetActive(true);
+        }
+        else
+        {
+            // ОШИБКА РЕГИСТРАЦИИ (Панель 2)
+            if (regErrorPanel != null) regErrorPanel.SetActive(true);
         }
     }
 
@@ -207,4 +233,5 @@ public class AuthResponse
     public int unlocked_level;
     public int score;
     public int balance;
+    public int equipped_skin;
 }
