@@ -140,6 +140,8 @@ public class GameManager : MonoBehaviour
         
         // ВАЖНО: Выключаем игровой HUD (топливо и заказы пропадают с экрана)
         if (gameplayHUD != null) gameplayHUD.SetActive(false);
+
+        if (CargoSelectionUI.Instance != null) CargoSelectionUI.Instance.CloseInstantly();
         
         if (gameOverPanel != null)
         {
@@ -170,17 +172,16 @@ public class GameManager : MonoBehaviour
                 int score = Mathf.RoundToInt(currentFuel * multiplier);
 
                 // ОБНОВЛЕНИЕ ТЕКСТА
-                if (gameOverText != null)
-                {
-                    gameOverText.text = $"Остаток топлива: {currentFuel}\n" +
-                                        $"Сложность: {difficulty} (x{multiplier})";
-                    gameOverText.color = Color.white;
-                }
+                // if (gameOverText != null)
+                // {
+                //     gameOverText.text = $"Остаток топлива: {currentFuel}\n" +
+                //                         $"Сложность: {difficulty} (x{multiplier})";
+                //     gameOverText.color = Color.white;
+                // }
 
                 if (scoreText != null)
                 {
                     scoreText.text = $"СЧЕТ: {score}";
-                    scoreText.color = Color.yellow;
                 }
 
                 if (nextLevelButton != null) nextLevelButton.SetActive(true); 
@@ -224,17 +225,17 @@ public class GameManager : MonoBehaviour
 
                 if (resultImageBanner != null) resultImageBanner.sprite = loseSprite;
 
-                if (gameOverText != null)
-                {
-                    gameOverText.text = "Машина заглохла...\nНе хватило топлива.";
-                    gameOverText.color = Color.red;
-                }
+                // if (gameOverText != null)
+                // {
+                //     gameOverText.text = "Машина заглохла...\nНе хватило топлива.";
+                //     gameOverText.color = Color.red;
+                // }
 
-                if (scoreText != null)
-                {
-                    scoreText.text = "СЧЕТ: 0";
-                    scoreText.color = Color.red;
-                }
+                // if (scoreText != null)
+                // {
+                //     scoreText.text = "СЧЕТ: 0";
+                //     scoreText.color = Color.red;
+                // }
 
                 if (nextLevelButton != null) nextLevelButton.SetActive(false);
             }

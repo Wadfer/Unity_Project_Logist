@@ -132,19 +132,22 @@ public class PlayerController : MonoBehaviour
     {
         visitedPoints.Add(point);
 
-        // Защита от ошибки
         if (AchievementManager.Instance != null)
         {
             if (visitedPoints.Count >= 10) AchievementManager.Instance.UnlockAchievement(6);
             if (point.type == PointType.GasStation) AchievementManager.Instance.UnlockAchievement(8);
             if (point.type == PointType.TrafficLight || point.type == PointType.RoadWorks || point.type == PointType.Accident) AchievementManager.Instance.UnlockAchievement(9);
         }
+        
         int fuelChange = point.GetFuelCost();
         GameManager.Instance.ModifyFuel(fuelChange);
 
+        // === ФИКС БАГА 2: Если после траты бензина игра закончилась - прерываем код! ===
+        if (!GameManager.Instance.isGameActive) return; 
+        // ==============================================================================
+
         if (point.type == PointType.Warehouse)
         {
-            // Открываем UI меню вместо автоматического забора
             CargoSelectionUI.Instance.Open(point, this);
         }
         else if (point.type == PointType.Shop)
