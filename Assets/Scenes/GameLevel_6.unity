@@ -9866,7 +9866,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33f24761a76d668468f6e384a3177d6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MapPoint
-  type: 0
+  type: 4
   neighbors:
   - {fileID: 733537376}
   - {fileID: 303762027}

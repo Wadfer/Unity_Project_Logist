@@ -2060,7 +2060,7 @@ MonoBehaviour:
   - {fileID: 309896211}
   - {fileID: 476306243}
   - {fileID: 1502838777}
-  cargoList: 01000000
+  cargoList: 03000000
   arrowPrefab: {fileID: 3577332432447560105, guid: f27ad80fc45086049a5d90f96f47c9fc, type: 3}
   warningPrefab: {fileID: 5538869017956700617, guid: 4a3bb6ae7c6da3c499ddc4e709e1c7c6, type: 3}
   trafficLightSprite: {fileID: 21300000, guid: d225b7642f0fed74bb8a0c0eb7f14e76, type: 3}
