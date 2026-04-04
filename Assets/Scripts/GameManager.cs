@@ -133,23 +133,35 @@ public class GameManager : MonoBehaviour
             ordersText.text = $": {completedOrders} / {totalOrders}";
     }
 
-    // --- ЛОГИКА ОКОНЧАНИЯ ИГРЫ ---
     void EndGame(bool win)
     {
         isGameActive = false;
         
-        // ВАЖНО: Выключаем игровой HUD (топливо и заказы пропадают с экрана)
+        // Выключаем игровой HUD (топливо и заказы пропадают с экрана)
         if (gameplayHUD != null) gameplayHUD.SetActive(false);
-
-        if (CargoSelectionUI.Instance != null) CargoSelectionUI.Instance.CloseInstantly();
         
+        // Закрываем меню склада, если оно было открыто
+        if (CargoSelectionUI.Instance != null) CargoSelectionUI.Instance.CloseInstantly();
+
         if (gameOverPanel != null)
         {
             gameOverPanel.SetActive(true);
 
+            // 1. ПРЯЧЕМ ТЕКСТ СЧЕТА 
+            if (scoreText != null) scoreText.gameObject.SetActive(false);
+
+            // 2. ВКЛЮЧАЕМ ЛИДЕРБОРД (и оставляем его на экране всегда)
+            if (leaderboardText != null) leaderboardText.gameObject.SetActive(true);
+
+            // 3. ЗАГРУЖАЕМ ТАБЛИЦУ ЛИДЕРОВ (даже если игрок проиграл, пусть смотрит на рекорды)
+            int currentLevelIndex = SceneManager.GetActiveScene().buildIndex;
+            StartCoroutine(LoadLeaderboard(currentLevelIndex));
+
             if (win)
             {
-                // АЧИВКИ
+                // ==========================================
+                // ПОБЕДА
+                // ==========================================
                 if (AchievementManager.Instance != null)
                 {
                     AchievementManager.Instance.UnlockAchievement(4);
@@ -171,23 +183,17 @@ public class GameManager : MonoBehaviour
                 }
                 int score = Mathf.RoundToInt(currentFuel * multiplier);
 
-                // ОБНОВЛЕНИЕ ТЕКСТА
-                // if (gameOverText != null)
-                // {
-                //     gameOverText.text = $"Остаток топлива: {currentFuel}\n" +
-                //                         $"Сложность: {difficulty} (x{multiplier})";
-                //     gameOverText.color = Color.white;
-                // }
-
-                if (scoreText != null)
+                // ОБНОВЛЕНИЕ ТЕКСТА ПОБЕДЫ
+                if (gameOverText != null)
                 {
-                    scoreText.text = $"СЧЕТ: {score}";
+                    gameOverText.text = $"Остаток топлива: {currentFuel}\n" +
+                                        $"Сложность: {difficulty} (x{multiplier})";
+                    gameOverText.color = Color.white;
                 }
 
                 if (nextLevelButton != null) nextLevelButton.SetActive(true); 
-                
-                // === ЛОГИКА СОХРАНЕНИЯ ПРОГРЕССА И ОЧКОВ ===
-                int currentLevelIndex = SceneManager.GetActiveScene().buildIndex;
+
+                // СОХРАНЕНИЕ ПРОГРЕССА И ОЧКОВ В БАЗУ
                 int nextLevelIndex = currentLevelIndex + 1;
                 int currentUnlocked = PlayerPrefs.GetInt("UnlockedLevel", 1);
 
@@ -195,12 +201,9 @@ public class GameManager : MonoBehaviour
                 {
                     int playerId = PlayerPrefs.GetInt("PlayerID");
 
-                    // 1. НОВОЕ: Отправляем заработанные очки в БД (передаем номер ТЕКУЩЕГО уровня)
+                    // Отправляем очки на сервер (только если выиграл)
                     StartCoroutine(SaveScoreToServer(playerId, currentLevelIndex, score));
 
-                    StartCoroutine(LoadLeaderboard(currentLevelIndex));
-
-                    // 2. СТАРОЕ: Если открыли новый уровень - сохраняем прогресс в БД
                     if (nextLevelIndex > currentUnlocked)
                     {
                         PlayerPrefs.SetInt("UnlockedLevel", nextLevelIndex);
@@ -220,24 +223,22 @@ public class GameManager : MonoBehaviour
             }
             else
             {
+                // ==========================================
                 // ПРОИГРЫШ
+                // ==========================================
                 PlayerPrefs.SetInt("WinStreak", 0);
 
                 if (resultImageBanner != null) resultImageBanner.sprite = loseSprite;
 
-                // if (gameOverText != null)
-                // {
-                //     gameOverText.text = "Машина заглохла...\nНе хватило топлива.";
-                //     gameOverText.color = Color.red;
-                // }
-
-                // if (scoreText != null)
-                // {
-                //     scoreText.text = "СЧЕТ: 0";
-                //     scoreText.color = Color.red;
-                // }
+                if (gameOverText != null)
+                {
+                    gameOverText.text = "Машина заглохла...\nНе хватило топлива.";
+                    gameOverText.color = Color.red;
+                }
 
                 if (nextLevelButton != null) nextLevelButton.SetActive(false);
+                
+                // (Лидерборд здесь не прячем, он останется висеть благодаря пункту 2)
             }
         }
     }
