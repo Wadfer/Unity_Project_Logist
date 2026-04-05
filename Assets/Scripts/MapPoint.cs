@@ -137,20 +137,20 @@ public class MapPoint : MonoBehaviour
         if (warningPrefab == null) return;
 
         Sprite iconToShow = null;
+        
+        // СНАЧАЛА определяем, какая картинка нужна
         if (type == PointType.TrafficLight) iconToShow = trafficLightSprite;
         else if (type == PointType.RoadWorks) iconToShow = roadWorksSprite;
         else if (type == PointType.Accident) iconToShow = accidentSprite;
+        else if (type == PointType.GasStation) iconToShow = gasStationSprite;
 
+        // ПОТОМ создаем объект и вешаем на него картинку
         if (iconToShow != null)
         {
             GameObject sign = Instantiate(warningPrefab);
             sign.transform.position = transform.position; 
             sign.GetComponent<SpriteRenderer>().sprite = iconToShow;
         }
-        if (type == PointType.TrafficLight) iconToShow = trafficLightSprite;
-        else if (type == PointType.RoadWorks) iconToShow = roadWorksSprite;
-        else if (type == PointType.Accident) iconToShow = accidentSprite;
-        else if (type == PointType.GasStation) iconToShow = gasStationSprite;
     }
     
 }
