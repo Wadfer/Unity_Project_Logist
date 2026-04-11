@@ -88,10 +88,6 @@ public class AchievementManager : MonoBehaviour
         }
     }
 
-    // ==============================================================
-    // ГЛАВНЫЙ МЕТОД: Теперь передаем ТОЛЬКО ID ачивки!
-    // Пример вызова: AchievementManager.Instance.UnlockAchievement(1);
-    // ==============================================================
     public void UnlockAchievement(int achId)
     {
         // 1. Ищем ачивку в нашей базе по ID
@@ -184,7 +180,6 @@ public class AchievementManager : MonoBehaviour
         isShowing = false;
     }
 
-    // --- Корутина: Отправка данных на сервер (осталась без изменений) ---
     private IEnumerator SendAchievementToDB(int userId, int achId)
     {
         // ВНИМАНИЕ: Проверь, правильный ли здесь IP-адрес!
@@ -204,7 +199,6 @@ public class AchievementManager : MonoBehaviour
             }
             else
             {
-                // Читаем текст, который нам вывел PHP-скрипт (echo json_encode...)
                 string serverResponse = request.downloadHandler.text;
                 Debug.Log("<color=magenta>Ответ сервера (Ачивки): " + serverResponse + "</color>");
             }

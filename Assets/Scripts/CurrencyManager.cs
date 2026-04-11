@@ -69,8 +69,8 @@ public class CurrencyManager : MonoBehaviour
         UpdateBalanceUI();
 
         // Отправляем новые данные в БД
-        int playerId = PlayerPrefs.GetInt("PlayerID");
-        StartCoroutine(UpdateBalanceInDB(playerId, currentBalance));
+        // int playerId = PlayerPrefs.GetInt("PlayerID");
+        // StartCoroutine(UpdateBalanceInDB(playerId, currentBalance));
     }
 
     // Метод для покупки скина (вызовем из магазина)
@@ -84,17 +84,15 @@ public class CurrencyManager : MonoBehaviour
             
             UpdateBalanceUI();
 
-            int playerId = PlayerPrefs.GetInt("PlayerID");
-            StartCoroutine(UpdateBalanceInDB(playerId, currentBalance));
-            return true; // Покупка успешна
+            // int playerId = PlayerPrefs.GetInt("PlayerID");
+            // StartCoroutine(UpdateBalanceInDB(playerId, currentBalance));
+            // return true; // Покупка успешна
         }
         return false; // Не хватает денег
     }
 
-    // Фоновая отправка денег на сервер
     private IEnumerator UpdateBalanceInDB(int userId, float newBalance)
     {
-        // Не забудь вставить свой домен!
         string url = "http://138.124.230.211/update_balance.php"; 
 
         WWWForm form = new WWWForm();

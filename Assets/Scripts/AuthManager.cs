@@ -162,9 +162,26 @@ public class AuthManager : MonoBehaviour
                         PlayerPrefs.SetString("PlayerName", response.username);
                         PlayerPrefs.SetInt("PlayerScore", response.score);
                         PlayerPrefs.SetInt("UnlockedLevel", response.unlocked_level);
-                        PlayerPrefs.SetFloat("PlayerBalance", response.balance); 
+                        PlayerPrefs.SetFloat("PlayerBalance", response.balance); // Используем SetFloat
                         PlayerPrefs.SetInt("EquippedSkinID", response.equipped_skin == 0 ? 1 : response.equipped_skin);
-                        PlayerPrefs.Save(); 
+                        //PlayerPrefs.Save();
+
+                        for (int i = 1; i <= 10; i++) // Предполагаем, что у вас 10 ачивок, как в коде выхода
+                        {
+                            PlayerPrefs.DeleteKey("ACH_" + i);
+                        }
+
+                        // 2. Записываем свежую информацию об ачивках, полученную с сервера
+                        if (response.unlocked_achievements != null)
+                        {
+                            foreach (int achId in response.unlocked_achievements)
+                            {
+                                PlayerPrefs.SetInt("ACH_" + achId, 1);
+                                Debug.Log($"<color=cyan>Загружена ачивка с сервера: ID {achId}</color>");
+                            }
+                        }
+
+                        PlayerPrefs.Save();
 
                         SkinController skinCtrl = FindAnyObjectByType<SkinController>();
                         if (skinCtrl != null) skinCtrl.ApplySkin(PlayerPrefs.GetInt("EquippedSkinID"));
@@ -234,4 +251,5 @@ public class AuthResponse
     public int score;
     public int balance;
     public int equipped_skin;
+    public int[] unlocked_achievements; 
 }
