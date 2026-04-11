@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
 using TMPro;
+using NUnit.Framework;
 
 public class AuthManager : MonoBehaviour
 {
@@ -27,9 +28,11 @@ public class AuthManager : MonoBehaviour
     public GameObject profilePanel;    // Панель с ником и кнопкой Выход
     public TMP_Text profileNameText;   // Текст, где будет написан Никнейм
 
-    [Header("Окно: Ошибка РЕГИСТРАЦИИ (Панель 2)")]
+    [Header("Окно: Ошибка РЕГИСТРАЦИИ")]
     public GameObject regErrorPanel;    // Сюда перетащишь панель "Логин занят"
-    [Header("Окно: Ошибка ВХОДА (Панель 3)")]
+    [Header("Окно: Ошибка ПАРОЛЯ (Панель 4)")]
+    public GameObject passwordErrorPanel;
+    [Header("Окно: Ошибка ВХОДА")]
     public GameObject loginErrorPanel; // Сюда перетащишь панель "Неверные данные"
     private void Start()
     {
@@ -215,18 +218,35 @@ public class AuthManager : MonoBehaviour
         }
     }
 
-    // Вспомогательный метод, чтобы код был чистым
     private void ShowErrorPanel(bool isLogin, string message)
     {
+        // Сначала убедимся, что все панели ошибок выключены
+        if (loginErrorPanel != null) loginErrorPanel.SetActive(false);
+        if (regErrorPanel != null) regErrorPanel.SetActive(false);
+        if (passwordErrorPanel != null) passwordErrorPanel.SetActive(false);
+
+        // Теперь решаем, какую включить
         if (isLogin)
         {
-            // ОШИБКА ВХОДА (Панель 3)
+            // Для окна ВХОДА пока только одна ошибка - "Неверные данные"
             if (loginErrorPanel != null) loginErrorPanel.SetActive(true);
         }
-        else
+        else // Если это окно РЕГИСТРАЦИИ
         {
-            // ОШИБКА РЕГИСТРАЦИИ (Панель 2)
-            if (regErrorPanel != null) regErrorPanel.SetActive(true);
+            // Анализируем текст сообщения от сервера
+            if (message.Contains("Пароль")) // Ищем ключевое слово "Пароль"
+            {
+                if (passwordErrorPanel != null) passwordErrorPanel.SetActive(true);
+            }
+            else if (message.Contains("логин уже занят")) // Ищем ключевое слово "логин"
+            {
+                if (regErrorPanel != null) regErrorPanel.SetActive(true);
+            }
+            else // Если пришла какая-то другая, неизвестная ошибка регистрации
+            {
+                // Можно показать самую общую панель или создать еще одну
+                if (regErrorPanel != null) regErrorPanel.SetActive(true); // Например, покажем панель "Логин занят" как запасную
+            }
         }
     }
 
