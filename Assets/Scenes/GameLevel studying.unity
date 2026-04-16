@@ -31370,10 +31370,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraFollow
   target: {fileID: 1931777027}
-  currentZoom: 17
-  minZoom: 5
-  maxZoom: 40
-  zoomSensitivity: 0
+  currentZoom: 16
+  minZoom: 16
+  maxZoom: 25
+  zoomSensitivity: 1
   rotateSpeedX: 0.5
   rotateSpeedY: 0.5
   minPitch: 40
